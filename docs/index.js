@@ -33403,7 +33403,8 @@ var BoardHeading$ReactTemplate = __webpack_require__(97);
 var component = ReasonReact.statelessComponent("Board");
 
 var style = {
-  border: "4px solid #292F36"
+  border: "4px solid #292F36",
+  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.4)"
 };
 
 function make(board, startingBoard, handleChange, _) {
@@ -33498,7 +33499,9 @@ var baseStyles = {
 };
 
 var providedStyles = ReactDOMRe.Style[/* combine */0](baseStyles, {
-      fontWeight: "bold"
+      cursor: "not-allowed",
+      fontWeight: "bold",
+      userSelect: "none"
     });
 
 var inputStyles = {

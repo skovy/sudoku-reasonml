@@ -20,7 +20,12 @@ let baseStyles =
 let providedStyles =
   ReactDOMRe.Style.combine(
     baseStyles,
-    ReactDOMRe.Style.make(~fontWeight="bold", ())
+    ReactDOMRe.Style.make(
+      ~fontWeight="bold",
+      ~cursor="not-allowed",
+      ~userSelect="none",
+      ()
+    )
   );
 
 let inputStyles =
