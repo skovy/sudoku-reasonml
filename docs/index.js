@@ -1237,12 +1237,12 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 var Curry                    = __webpack_require__(2);
 var Caml_io                  = __webpack_require__(61);
-var Caml_obj                 = __webpack_require__(9);
+var Caml_obj                 = __webpack_require__(10);
 var Caml_sys                 = __webpack_require__(38);
-var Caml_format              = __webpack_require__(16);
-var Caml_string              = __webpack_require__(10);
-var Caml_exceptions          = __webpack_require__(22);
-var Caml_missing_polyfill    = __webpack_require__(18);
+var Caml_format              = __webpack_require__(17);
+var Caml_string              = __webpack_require__(11);
+var Caml_exceptions          = __webpack_require__(23);
+var Caml_missing_polyfill    = __webpack_require__(19);
 var Caml_builtin_exceptions  = __webpack_require__(1);
 var CamlinternalFormatBasics = __webpack_require__(62);
 
@@ -2099,1344 +2099,10 @@ exports.caml_array_set    = caml_array_set;
 "use strict";
 
 
-var Block                   = __webpack_require__(21);
-var Caml_builtin_exceptions = __webpack_require__(1);
-
-function caml_obj_dup(x) {
-  var len = x.length | 0;
-  var v = new Array(len);
-  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-    v[i] = x[i];
-  }
-  v.tag = x.tag | 0;
-  return v;
-}
-
-function caml_obj_truncate(x, new_size) {
-  var len = x.length | 0;
-  if (new_size <= 0 || new_size > len) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Obj.truncate"
-        ];
-  } else if (len !== new_size) {
-    for(var i = new_size ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-      x[i] = 0;
-    }
-    x.length = new_size;
-    return /* () */0;
-  } else {
-    return 0;
-  }
-}
-
-function caml_lazy_make_forward(x) {
-  return Block.__(250, [x]);
-}
-
-function caml_update_dummy(x, y) {
-  var len = y.length | 0;
-  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-    x[i] = y[i];
-  }
-  var y_tag = y.tag | 0;
-  if (y_tag !== 0) {
-    x.tag = y_tag;
-    return /* () */0;
-  } else {
-    return 0;
-  }
-}
-
-function caml_int_compare(x, y) {
-  if (x < y) {
-    return -1;
-  } else if (x === y) {
-    return 0;
-  } else {
-    return 1;
-  }
-}
-
-function caml_compare(_a, _b) {
-  while(true) {
-    var b = _b;
-    var a = _a;
-    if (a === b) {
-      return 0;
-    } else {
-      var a_type = typeof a;
-      var b_type = typeof b;
-      if (a_type === "string") {
-        var x = a;
-        var y = b;
-        if (x < y) {
-          return -1;
-        } else if (x === y) {
-          return 0;
-        } else {
-          return 1;
-        }
-      } else {
-        var is_a_number = +(a_type === "number");
-        var is_b_number = +(b_type === "number");
-        if (is_a_number !== 0) {
-          if (is_b_number !== 0) {
-            return caml_int_compare(a, b);
-          } else {
-            return -1;
-          }
-        } else if (is_b_number !== 0) {
-          return 1;
-        } else if (a_type === "boolean" || a_type === "undefined" || a === null) {
-          var x$1 = a;
-          var y$1 = b;
-          if (x$1 === y$1) {
-            return 0;
-          } else if (x$1 < y$1) {
-            return -1;
-          } else {
-            return 1;
-          }
-        } else if (a_type === "function" || b_type === "function") {
-          throw [
-                Caml_builtin_exceptions.invalid_argument,
-                "compare: functional value"
-              ];
-        } else {
-          var tag_a = a.tag | 0;
-          var tag_b = b.tag | 0;
-          if (tag_a === 250) {
-            _a = a[0];
-            continue ;
-            
-          } else if (tag_b === 250) {
-            _b = b[0];
-            continue ;
-            
-          } else if (tag_a === 248) {
-            return caml_int_compare(a[1], b[1]);
-          } else if (tag_a === 251) {
-            throw [
-                  Caml_builtin_exceptions.invalid_argument,
-                  "equal: abstract value"
-                ];
-          } else if (tag_a !== tag_b) {
-            if (tag_a < tag_b) {
-              return -1;
-            } else {
-              return 1;
-            }
-          } else {
-            var len_a = a.length | 0;
-            var len_b = b.length | 0;
-            if (len_a === len_b) {
-              var a$1 = a;
-              var b$1 = b;
-              var _i = 0;
-              var same_length = len_a;
-              while(true) {
-                var i = _i;
-                if (i === same_length) {
-                  return 0;
-                } else {
-                  var res = caml_compare(a$1[i], b$1[i]);
-                  if (res !== 0) {
-                    return res;
-                  } else {
-                    _i = i + 1 | 0;
-                    continue ;
-                    
-                  }
-                }
-              };
-            } else if (len_a < len_b) {
-              var a$2 = a;
-              var b$2 = b;
-              var _i$1 = 0;
-              var short_length = len_a;
-              while(true) {
-                var i$1 = _i$1;
-                if (i$1 === short_length) {
-                  return -1;
-                } else {
-                  var res$1 = caml_compare(a$2[i$1], b$2[i$1]);
-                  if (res$1 !== 0) {
-                    return res$1;
-                  } else {
-                    _i$1 = i$1 + 1 | 0;
-                    continue ;
-                    
-                  }
-                }
-              };
-            } else {
-              var a$3 = a;
-              var b$3 = b;
-              var _i$2 = 0;
-              var short_length$1 = len_b;
-              while(true) {
-                var i$2 = _i$2;
-                if (i$2 === short_length$1) {
-                  return 1;
-                } else {
-                  var res$2 = caml_compare(a$3[i$2], b$3[i$2]);
-                  if (res$2 !== 0) {
-                    return res$2;
-                  } else {
-                    _i$2 = i$2 + 1 | 0;
-                    continue ;
-                    
-                  }
-                }
-              };
-            }
-          }
-        }
-      }
-    }
-  };
-}
-
-function caml_equal(_a, _b) {
-  while(true) {
-    var b = _b;
-    var a = _a;
-    if (a === b) {
-      return /* true */1;
-    } else {
-      var a_type = typeof a;
-      if (a_type === "string" || a_type === "number" || a_type === "boolean" || a_type === "undefined" || a === null) {
-        return /* false */0;
-      } else {
-        var b_type = typeof b;
-        if (a_type === "function" || b_type === "function") {
-          throw [
-                Caml_builtin_exceptions.invalid_argument,
-                "equal: functional value"
-              ];
-        } else if (b_type === "number" || b_type === "undefined" || b === null) {
-          return /* false */0;
-        } else {
-          var tag_a = a.tag | 0;
-          var tag_b = b.tag | 0;
-          if (tag_a === 250) {
-            _a = a[0];
-            continue ;
-            
-          } else if (tag_b === 250) {
-            _b = b[0];
-            continue ;
-            
-          } else if (tag_a === 248) {
-            return +(a[1] === b[1]);
-          } else if (tag_a === 251) {
-            throw [
-                  Caml_builtin_exceptions.invalid_argument,
-                  "equal: abstract value"
-                ];
-          } else if (tag_a !== tag_b) {
-            return /* false */0;
-          } else {
-            var len_a = a.length | 0;
-            var len_b = b.length | 0;
-            if (len_a === len_b) {
-              var a$1 = a;
-              var b$1 = b;
-              var _i = 0;
-              var same_length = len_a;
-              while(true) {
-                var i = _i;
-                if (i === same_length) {
-                  return /* true */1;
-                } else if (caml_equal(a$1[i], b$1[i])) {
-                  _i = i + 1 | 0;
-                  continue ;
-                  
-                } else {
-                  return /* false */0;
-                }
-              };
-            } else {
-              return /* false */0;
-            }
-          }
-        }
-      }
-    }
-  };
-}
-
-function caml_notequal(a, b) {
-  return 1 - caml_equal(a, b);
-}
-
-function caml_greaterequal(a, b) {
-  return +(caml_compare(a, b) >= 0);
-}
-
-function caml_greaterthan(a, b) {
-  return +(caml_compare(a, b) > 0);
-}
-
-function caml_lessequal(a, b) {
-  return +(caml_compare(a, b) <= 0);
-}
-
-function caml_lessthan(a, b) {
-  return +(caml_compare(a, b) < 0);
-}
-
-var caml_int32_compare = caml_int_compare;
-
-var caml_nativeint_compare = caml_int_compare;
-
-exports.caml_obj_dup           = caml_obj_dup;
-exports.caml_obj_truncate      = caml_obj_truncate;
-exports.caml_lazy_make_forward = caml_lazy_make_forward;
-exports.caml_update_dummy      = caml_update_dummy;
-exports.caml_int_compare       = caml_int_compare;
-exports.caml_int32_compare     = caml_int32_compare;
-exports.caml_nativeint_compare = caml_nativeint_compare;
-exports.caml_compare           = caml_compare;
-exports.caml_equal             = caml_equal;
-exports.caml_notequal          = caml_notequal;
-exports.caml_greaterequal      = caml_greaterequal;
-exports.caml_greaterthan       = caml_greaterthan;
-exports.caml_lessthan          = caml_lessthan;
-exports.caml_lessequal         = caml_lessequal;
-/* No side effect */
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Caml_builtin_exceptions = __webpack_require__(1);
-
-function string_of_char(prim) {
-  return String.fromCharCode(prim);
-}
-
-function caml_string_get(s, i) {
-  if (i >= s.length || i < 0) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "index out of bounds"
-        ];
-  } else {
-    return s.charCodeAt(i);
-  }
-}
-
-function caml_create_string(len) {
-  if (len < 0) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "String.create"
-        ];
-  } else {
-    return new Array(len);
-  }
-}
-
-function caml_string_compare(s1, s2) {
-  if (s1 === s2) {
-    return 0;
-  } else if (s1 < s2) {
-    return -1;
-  } else {
-    return 1;
-  }
-}
-
-function caml_fill_string(s, i, l, c) {
-  if (l > 0) {
-    for(var k = i ,k_finish = (l + i | 0) - 1 | 0; k <= k_finish; ++k){
-      s[k] = c;
-    }
-    return /* () */0;
-  } else {
-    return 0;
-  }
-}
-
-function caml_blit_string(s1, i1, s2, i2, len) {
-  if (len > 0) {
-    var off1 = s1.length - i1 | 0;
-    if (len <= off1) {
-      for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-        s2[i2 + i | 0] = s1.charCodeAt(i1 + i | 0);
-      }
-      return /* () */0;
-    } else {
-      for(var i$1 = 0 ,i_finish$1 = off1 - 1 | 0; i$1 <= i_finish$1; ++i$1){
-        s2[i2 + i$1 | 0] = s1.charCodeAt(i1 + i$1 | 0);
-      }
-      for(var i$2 = off1 ,i_finish$2 = len - 1 | 0; i$2 <= i_finish$2; ++i$2){
-        s2[i2 + i$2 | 0] = /* "\000" */0;
-      }
-      return /* () */0;
-    }
-  } else {
-    return 0;
-  }
-}
-
-function caml_blit_bytes(s1, i1, s2, i2, len) {
-  if (len > 0) {
-    if (s1 === s2) {
-      var s1$1 = s1;
-      var i1$1 = i1;
-      var i2$1 = i2;
-      var len$1 = len;
-      if (i1$1 < i2$1) {
-        var range_a = (s1$1.length - i2$1 | 0) - 1 | 0;
-        var range_b = len$1 - 1 | 0;
-        var range = range_a > range_b ? range_b : range_a;
-        for(var j = range; j >= 0; --j){
-          s1$1[i2$1 + j | 0] = s1$1[i1$1 + j | 0];
-        }
-        return /* () */0;
-      } else if (i1$1 > i2$1) {
-        var range_a$1 = (s1$1.length - i1$1 | 0) - 1 | 0;
-        var range_b$1 = len$1 - 1 | 0;
-        var range$1 = range_a$1 > range_b$1 ? range_b$1 : range_a$1;
-        for(var k = 0; k <= range$1; ++k){
-          s1$1[i2$1 + k | 0] = s1$1[i1$1 + k | 0];
-        }
-        return /* () */0;
-      } else {
-        return 0;
-      }
-    } else {
-      var off1 = s1.length - i1 | 0;
-      if (len <= off1) {
-        for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-          s2[i2 + i | 0] = s1[i1 + i | 0];
-        }
-        return /* () */0;
-      } else {
-        for(var i$1 = 0 ,i_finish$1 = off1 - 1 | 0; i$1 <= i_finish$1; ++i$1){
-          s2[i2 + i$1 | 0] = s1[i1 + i$1 | 0];
-        }
-        for(var i$2 = off1 ,i_finish$2 = len - 1 | 0; i$2 <= i_finish$2; ++i$2){
-          s2[i2 + i$2 | 0] = /* "\000" */0;
-        }
-        return /* () */0;
-      }
-    }
-  } else {
-    return 0;
-  }
-}
-
-function bytes_of_string(s) {
-  var len = s.length;
-  var res = new Array(len);
-  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-    res[i] = s.charCodeAt(i);
-  }
-  return res;
-}
-
-function bytes_to_string(a) {
-  var bytes = a;
-  var i = 0;
-  var len = a.length;
-  var s = "";
-  var s_len = len;
-  if (i === 0 && len <= 4096 && len === bytes.length) {
-    return String.fromCharCode.apply(null,bytes);
-  } else {
-    var offset = 0;
-    while(s_len > 0) {
-      var next = s_len < 1024 ? s_len : 1024;
-      var tmp_bytes = new Array(next);
-      caml_blit_bytes(bytes, offset, tmp_bytes, 0, next);
-      s = s + String.fromCharCode.apply(null,tmp_bytes);
-      s_len = s_len - next | 0;
-      offset = offset + next | 0;
-    };
-    return s;
-  }
-}
-
-function caml_string_of_char_array(chars) {
-  var len = chars.length;
-  var bytes = new Array(len);
-  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-    bytes[i] = chars[i];
-  }
-  return bytes_to_string(bytes);
-}
-
-function caml_is_printable(c) {
-  if (c > 31) {
-    return +(c < 127);
-  } else {
-    return /* false */0;
-  }
-}
-
-function caml_string_get16(s, i) {
-  return s.charCodeAt(i) + (s.charCodeAt(i + 1 | 0) << 8) | 0;
-}
-
-function caml_string_get32(s, i) {
-  return ((s.charCodeAt(i) + (s.charCodeAt(i + 1 | 0) << 8) | 0) + (s.charCodeAt(i + 2 | 0) << 16) | 0) + (s.charCodeAt(i + 3 | 0) << 24) | 0;
-}
-
-function get(s, i) {
-  if (i < 0 || i >= s.length) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "index out of bounds"
-        ];
-  } else {
-    return s.charCodeAt(i);
-  }
-}
-
-exports.bytes_of_string           = bytes_of_string;
-exports.bytes_to_string           = bytes_to_string;
-exports.caml_is_printable         = caml_is_printable;
-exports.caml_string_of_char_array = caml_string_of_char_array;
-exports.caml_string_get           = caml_string_get;
-exports.caml_string_compare       = caml_string_compare;
-exports.caml_create_string        = caml_create_string;
-exports.caml_fill_string          = caml_fill_string;
-exports.caml_blit_string          = caml_blit_string;
-exports.caml_blit_bytes           = caml_blit_bytes;
-exports.caml_string_get16         = caml_string_get16;
-exports.caml_string_get32         = caml_string_get32;
-exports.string_of_char            = string_of_char;
-exports.get                       = get;
-/* No side effect */
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Curry                   = __webpack_require__(2);
-var Js_exn                  = __webpack_require__(40);
-var Caml_array              = __webpack_require__(8);
-var Caml_exceptions         = __webpack_require__(22);
-var Caml_builtin_exceptions = __webpack_require__(1);
-
-function init(l, f) {
-  if (l) {
-    if (l < 0) {
-      throw [
-            Caml_builtin_exceptions.invalid_argument,
-            "Array.init"
-          ];
-    } else {
-      var res = Caml_array.caml_make_vect(l, Curry._1(f, 0));
-      for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-        res[i] = Curry._1(f, i);
-      }
-      return res;
-    }
-  } else {
-    return /* array */[];
-  }
-}
-
-function make_matrix(sx, sy, init) {
-  var res = Caml_array.caml_make_vect(sx, /* array */[]);
-  for(var x = 0 ,x_finish = sx - 1 | 0; x <= x_finish; ++x){
-    res[x] = Caml_array.caml_make_vect(sy, init);
-  }
-  return res;
-}
-
-function copy(a) {
-  var l = a.length;
-  if (l) {
-    return Caml_array.caml_array_sub(a, 0, l);
-  } else {
-    return /* array */[];
-  }
-}
-
-function append(a1, a2) {
-  var l1 = a1.length;
-  if (l1) {
-    if (a2.length) {
-      return a1.concat(a2);
-    } else {
-      return Caml_array.caml_array_sub(a1, 0, l1);
-    }
-  } else {
-    return copy(a2);
-  }
-}
-
-function sub(a, ofs, len) {
-  if (len < 0 || ofs > (a.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.sub"
-        ];
-  } else {
-    return Caml_array.caml_array_sub(a, ofs, len);
-  }
-}
-
-function fill(a, ofs, len, v) {
-  if (ofs < 0 || len < 0 || ofs > (a.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.fill"
-        ];
-  } else {
-    for(var i = ofs ,i_finish = (ofs + len | 0) - 1 | 0; i <= i_finish; ++i){
-      a[i] = v;
-    }
-    return /* () */0;
-  }
-}
-
-function blit(a1, ofs1, a2, ofs2, len) {
-  if (len < 0 || ofs1 < 0 || ofs1 > (a1.length - len | 0) || ofs2 < 0 || ofs2 > (a2.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.blit"
-        ];
-  } else {
-    return Caml_array.caml_array_blit(a1, ofs1, a2, ofs2, len);
-  }
-}
-
-function iter(f, a) {
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    Curry._1(f, a[i]);
-  }
-  return /* () */0;
-}
-
-function map(f, a) {
-  var l = a.length;
-  if (l) {
-    var r = Caml_array.caml_make_vect(l, Curry._1(f, a[0]));
-    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-      r[i] = Curry._1(f, a[i]);
-    }
-    return r;
-  } else {
-    return /* array */[];
-  }
-}
-
-function iteri(f, a) {
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    Curry._2(f, i, a[i]);
-  }
-  return /* () */0;
-}
-
-function mapi(f, a) {
-  var l = a.length;
-  if (l) {
-    var r = Caml_array.caml_make_vect(l, Curry._2(f, 0, a[0]));
-    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-      r[i] = Curry._2(f, i, a[i]);
-    }
-    return r;
-  } else {
-    return /* array */[];
-  }
-}
-
-function to_list(a) {
-  var _i = a.length - 1 | 0;
-  var _res = /* [] */0;
-  while(true) {
-    var res = _res;
-    var i = _i;
-    if (i < 0) {
-      return res;
-    } else {
-      _res = /* :: */[
-        a[i],
-        res
-      ];
-      _i = i - 1 | 0;
-      continue ;
-      
-    }
-  };
-}
-
-function list_length(_accu, _param) {
-  while(true) {
-    var param = _param;
-    var accu = _accu;
-    if (param) {
-      _param = param[1];
-      _accu = accu + 1 | 0;
-      continue ;
-      
-    } else {
-      return accu;
-    }
-  };
-}
-
-function of_list(l) {
-  if (l) {
-    var a = Caml_array.caml_make_vect(list_length(0, l), l[0]);
-    var _i = 1;
-    var _param = l[1];
-    while(true) {
-      var param = _param;
-      var i = _i;
-      if (param) {
-        a[i] = param[0];
-        _param = param[1];
-        _i = i + 1 | 0;
-        continue ;
-        
-      } else {
-        return a;
-      }
-    };
-  } else {
-    return /* array */[];
-  }
-}
-
-function fold_left(f, x, a) {
-  var r = x;
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    r = Curry._2(f, r, a[i]);
-  }
-  return r;
-}
-
-function fold_right(f, a, x) {
-  var r = x;
-  for(var i = a.length - 1 | 0; i >= 0; --i){
-    r = Curry._2(f, a[i], r);
-  }
-  return r;
-}
-
-var Bottom = Caml_exceptions.create("Array.Bottom");
-
-function sort(cmp, a) {
-  var maxson = function (l, i) {
-    var i31 = ((i + i | 0) + i | 0) + 1 | 0;
-    var x = i31;
-    if ((i31 + 2 | 0) < l) {
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
-        x = i31 + 1 | 0;
-      }
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, x), Caml_array.caml_array_get(a, i31 + 2 | 0)) < 0) {
-        x = i31 + 2 | 0;
-      }
-      return x;
-    } else if ((i31 + 1 | 0) < l && Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
-      return i31 + 1 | 0;
-    } else if (i31 < l) {
-      return i31;
-    } else {
-      throw [
-            Bottom,
-            i
-          ];
-    }
-  };
-  var trickle = function (l, i, e) {
-    try {
-      var l$1 = l;
-      var _i = i;
-      var e$1 = e;
-      while(true) {
-        var i$1 = _i;
-        var j = maxson(l$1, i$1);
-        if (Curry._2(cmp, Caml_array.caml_array_get(a, j), e$1) > 0) {
-          Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
-          _i = j;
-          continue ;
-          
-        } else {
-          return Caml_array.caml_array_set(a, i$1, e$1);
-        }
-      };
-    }
-    catch (raw_exn){
-      var exn = Js_exn.internalToOCamlException(raw_exn);
-      if (exn[0] === Bottom) {
-        return Caml_array.caml_array_set(a, exn[1], e);
-      } else {
-        throw exn;
-      }
-    }
-  };
-  var bubble = function (l, i) {
-    try {
-      var l$1 = l;
-      var _i = i;
-      while(true) {
-        var i$1 = _i;
-        var j = maxson(l$1, i$1);
-        Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
-        _i = j;
-        continue ;
-        
-      };
-    }
-    catch (raw_exn){
-      var exn = Js_exn.internalToOCamlException(raw_exn);
-      if (exn[0] === Bottom) {
-        return exn[1];
-      } else {
-        throw exn;
-      }
-    }
-  };
-  var trickleup = function (_i, e) {
-    while(true) {
-      var i = _i;
-      var father = (i - 1 | 0) / 3 | 0;
-      if (i === father) {
-        throw [
-              Caml_builtin_exceptions.assert_failure,
-              [
-                "array.ml",
-                168,
-                4
-              ]
-            ];
-      }
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, father), e) < 0) {
-        Caml_array.caml_array_set(a, i, Caml_array.caml_array_get(a, father));
-        if (father > 0) {
-          _i = father;
-          continue ;
-          
-        } else {
-          return Caml_array.caml_array_set(a, 0, e);
-        }
-      } else {
-        return Caml_array.caml_array_set(a, i, e);
-      }
-    };
-  };
-  var l = a.length;
-  for(var i = ((l + 1 | 0) / 3 | 0) - 1 | 0; i >= 0; --i){
-    trickle(l, i, Caml_array.caml_array_get(a, i));
-  }
-  for(var i$1 = l - 1 | 0; i$1 >= 2; --i$1){
-    var e = Caml_array.caml_array_get(a, i$1);
-    Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, 0));
-    trickleup(bubble(i$1, 0), e);
-  }
-  if (l > 1) {
-    var e$1 = Caml_array.caml_array_get(a, 1);
-    Caml_array.caml_array_set(a, 1, Caml_array.caml_array_get(a, 0));
-    return Caml_array.caml_array_set(a, 0, e$1);
-  } else {
-    return 0;
-  }
-}
-
-function stable_sort(cmp, a) {
-  var merge = function (src1ofs, src1len, src2, src2ofs, src2len, dst, dstofs) {
-    var src1r = src1ofs + src1len | 0;
-    var src2r = src2ofs + src2len | 0;
-    var _i1 = src1ofs;
-    var _s1 = Caml_array.caml_array_get(a, src1ofs);
-    var _i2 = src2ofs;
-    var _s2 = Caml_array.caml_array_get(src2, src2ofs);
-    var _d = dstofs;
-    while(true) {
-      var d = _d;
-      var s2 = _s2;
-      var i2 = _i2;
-      var s1 = _s1;
-      var i1 = _i1;
-      if (Curry._2(cmp, s1, s2) <= 0) {
-        Caml_array.caml_array_set(dst, d, s1);
-        var i1$1 = i1 + 1 | 0;
-        if (i1$1 < src1r) {
-          _d = d + 1 | 0;
-          _s1 = Caml_array.caml_array_get(a, i1$1);
-          _i1 = i1$1;
-          continue ;
-          
-        } else {
-          return blit(src2, i2, dst, d + 1 | 0, src2r - i2 | 0);
-        }
-      } else {
-        Caml_array.caml_array_set(dst, d, s2);
-        var i2$1 = i2 + 1 | 0;
-        if (i2$1 < src2r) {
-          _d = d + 1 | 0;
-          _s2 = Caml_array.caml_array_get(src2, i2$1);
-          _i2 = i2$1;
-          continue ;
-          
-        } else {
-          return blit(a, i1, dst, d + 1 | 0, src1r - i1 | 0);
-        }
-      }
-    };
-  };
-  var isortto = function (srcofs, dst, dstofs, len) {
-    for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-      var e = Caml_array.caml_array_get(a, srcofs + i | 0);
-      var j = (dstofs + i | 0) - 1 | 0;
-      while(j >= dstofs && Curry._2(cmp, Caml_array.caml_array_get(dst, j), e) > 0) {
-        Caml_array.caml_array_set(dst, j + 1 | 0, Caml_array.caml_array_get(dst, j));
-        j = j - 1 | 0;
-      };
-      Caml_array.caml_array_set(dst, j + 1 | 0, e);
-    }
-    return /* () */0;
-  };
-  var sortto = function (srcofs, dst, dstofs, len) {
-    if (len <= 5) {
-      return isortto(srcofs, dst, dstofs, len);
-    } else {
-      var l1 = len / 2 | 0;
-      var l2 = len - l1 | 0;
-      sortto(srcofs + l1 | 0, dst, dstofs + l1 | 0, l2);
-      sortto(srcofs, a, srcofs + l2 | 0, l1);
-      return merge(srcofs + l2 | 0, l1, dst, dstofs + l1 | 0, l2, dst, dstofs);
-    }
-  };
-  var l = a.length;
-  if (l <= 5) {
-    return isortto(0, a, 0, l);
-  } else {
-    var l1 = l / 2 | 0;
-    var l2 = l - l1 | 0;
-    var t = Caml_array.caml_make_vect(l2, Caml_array.caml_array_get(a, 0));
-    sortto(l1, t, 0, l2);
-    sortto(0, a, l2, l1);
-    return merge(l2, l1, t, 0, l2, a, 0);
-  }
-}
-
-var create_matrix = make_matrix;
-
-var concat = Caml_array.caml_array_concat;
-
-var fast_sort = stable_sort;
-
-exports.init          = init;
-exports.make_matrix   = make_matrix;
-exports.create_matrix = create_matrix;
-exports.append        = append;
-exports.concat        = concat;
-exports.sub           = sub;
-exports.copy          = copy;
-exports.fill          = fill;
-exports.blit          = blit;
-exports.to_list       = to_list;
-exports.of_list       = of_list;
-exports.iter          = iter;
-exports.map           = map;
-exports.iteri         = iteri;
-exports.mapi          = mapi;
-exports.fold_left     = fold_left;
-exports.fold_right    = fold_right;
-exports.sort          = sort;
-exports.stable_sort   = stable_sort;
-exports.fast_sort     = fast_sort;
-/* No side effect */
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-var _assign = __webpack_require__(5);
-
-var ReactCurrentOwner = __webpack_require__(24);
-
-var warning = __webpack_require__(4);
-var canDefineProperty = __webpack_require__(23);
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-var REACT_ELEMENT_TYPE = __webpack_require__(43);
-
-var RESERVED_PROPS = {
-  key: true,
-  ref: true,
-  __self: true,
-  __source: true
-};
-
-var specialPropKeyWarningShown, specialPropRefWarningShown;
-
-function hasValidRef(config) {
-  if (process.env.NODE_ENV !== 'production') {
-    if (hasOwnProperty.call(config, 'ref')) {
-      var getter = Object.getOwnPropertyDescriptor(config, 'ref').get;
-      if (getter && getter.isReactWarning) {
-        return false;
-      }
-    }
-  }
-  return config.ref !== undefined;
-}
-
-function hasValidKey(config) {
-  if (process.env.NODE_ENV !== 'production') {
-    if (hasOwnProperty.call(config, 'key')) {
-      var getter = Object.getOwnPropertyDescriptor(config, 'key').get;
-      if (getter && getter.isReactWarning) {
-        return false;
-      }
-    }
-  }
-  return config.key !== undefined;
-}
-
-function defineKeyPropWarningGetter(props, displayName) {
-  var warnAboutAccessingKey = function () {
-    if (!specialPropKeyWarningShown) {
-      specialPropKeyWarningShown = true;
-      process.env.NODE_ENV !== 'production' ? warning(false, '%s: `key` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
-    }
-  };
-  warnAboutAccessingKey.isReactWarning = true;
-  Object.defineProperty(props, 'key', {
-    get: warnAboutAccessingKey,
-    configurable: true
-  });
-}
-
-function defineRefPropWarningGetter(props, displayName) {
-  var warnAboutAccessingRef = function () {
-    if (!specialPropRefWarningShown) {
-      specialPropRefWarningShown = true;
-      process.env.NODE_ENV !== 'production' ? warning(false, '%s: `ref` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
-    }
-  };
-  warnAboutAccessingRef.isReactWarning = true;
-  Object.defineProperty(props, 'ref', {
-    get: warnAboutAccessingRef,
-    configurable: true
-  });
-}
-
-/**
- * Factory method to create a new React element. This no longer adheres to
- * the class pattern, so do not use new to call it. Also, no instanceof check
- * will work. Instead test $$typeof field against Symbol.for('react.element') to check
- * if something is a React Element.
- *
- * @param {*} type
- * @param {*} key
- * @param {string|object} ref
- * @param {*} self A *temporary* helper to detect places where `this` is
- * different from the `owner` when React.createElement is called, so that we
- * can warn. We want to get rid of owner and replace string `ref`s with arrow
- * functions, and as long as `this` and owner are the same, there will be no
- * change in behavior.
- * @param {*} source An annotation object (added by a transpiler or otherwise)
- * indicating filename, line number, and/or other information.
- * @param {*} owner
- * @param {*} props
- * @internal
- */
-var ReactElement = function (type, key, ref, self, source, owner, props) {
-  var element = {
-    // This tag allow us to uniquely identify this as a React Element
-    $$typeof: REACT_ELEMENT_TYPE,
-
-    // Built-in properties that belong on the element
-    type: type,
-    key: key,
-    ref: ref,
-    props: props,
-
-    // Record the component responsible for creating this element.
-    _owner: owner
-  };
-
-  if (process.env.NODE_ENV !== 'production') {
-    // The validation flag is currently mutative. We put it on
-    // an external backing store so that we can freeze the whole object.
-    // This can be replaced with a WeakMap once they are implemented in
-    // commonly used development environments.
-    element._store = {};
-
-    // To make comparing ReactElements easier for testing purposes, we make
-    // the validation flag non-enumerable (where possible, which should
-    // include every environment we run tests in), so the test framework
-    // ignores it.
-    if (canDefineProperty) {
-      Object.defineProperty(element._store, 'validated', {
-        configurable: false,
-        enumerable: false,
-        writable: true,
-        value: false
-      });
-      // self and source are DEV only properties.
-      Object.defineProperty(element, '_self', {
-        configurable: false,
-        enumerable: false,
-        writable: false,
-        value: self
-      });
-      // Two elements created in two different places should be considered
-      // equal for testing purposes and therefore we hide it from enumeration.
-      Object.defineProperty(element, '_source', {
-        configurable: false,
-        enumerable: false,
-        writable: false,
-        value: source
-      });
-    } else {
-      element._store.validated = false;
-      element._self = self;
-      element._source = source;
-    }
-    if (Object.freeze) {
-      Object.freeze(element.props);
-      Object.freeze(element);
-    }
-  }
-
-  return element;
-};
-
-/**
- * Create and return a new ReactElement of the given type.
- * See https://facebook.github.io/react/docs/top-level-api.html#react.createelement
- */
-ReactElement.createElement = function (type, config, children) {
-  var propName;
-
-  // Reserved names are extracted
-  var props = {};
-
-  var key = null;
-  var ref = null;
-  var self = null;
-  var source = null;
-
-  if (config != null) {
-    if (hasValidRef(config)) {
-      ref = config.ref;
-    }
-    if (hasValidKey(config)) {
-      key = '' + config.key;
-    }
-
-    self = config.__self === undefined ? null : config.__self;
-    source = config.__source === undefined ? null : config.__source;
-    // Remaining properties are added to a new props object
-    for (propName in config) {
-      if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
-        props[propName] = config[propName];
-      }
-    }
-  }
-
-  // Children can be more than one argument, and those are transferred onto
-  // the newly allocated props object.
-  var childrenLength = arguments.length - 2;
-  if (childrenLength === 1) {
-    props.children = children;
-  } else if (childrenLength > 1) {
-    var childArray = Array(childrenLength);
-    for (var i = 0; i < childrenLength; i++) {
-      childArray[i] = arguments[i + 2];
-    }
-    if (process.env.NODE_ENV !== 'production') {
-      if (Object.freeze) {
-        Object.freeze(childArray);
-      }
-    }
-    props.children = childArray;
-  }
-
-  // Resolve default props
-  if (type && type.defaultProps) {
-    var defaultProps = type.defaultProps;
-    for (propName in defaultProps) {
-      if (props[propName] === undefined) {
-        props[propName] = defaultProps[propName];
-      }
-    }
-  }
-  if (process.env.NODE_ENV !== 'production') {
-    if (key || ref) {
-      if (typeof props.$$typeof === 'undefined' || props.$$typeof !== REACT_ELEMENT_TYPE) {
-        var displayName = typeof type === 'function' ? type.displayName || type.name || 'Unknown' : type;
-        if (key) {
-          defineKeyPropWarningGetter(props, displayName);
-        }
-        if (ref) {
-          defineRefPropWarningGetter(props, displayName);
-        }
-      }
-    }
-  }
-  return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
-};
-
-/**
- * Return a function that produces ReactElements of a given type.
- * See https://facebook.github.io/react/docs/top-level-api.html#react.createfactory
- */
-ReactElement.createFactory = function (type) {
-  var factory = ReactElement.createElement.bind(null, type);
-  // Expose the type on the factory and the prototype so that it can be
-  // easily accessed on elements. E.g. `<Foo />.type === Foo`.
-  // This should not be named `constructor` since this may not be the function
-  // that created the element, and it may not even be a constructor.
-  // Legacy hook TODO: Warn if this is accessed
-  factory.type = type;
-  return factory;
-};
-
-ReactElement.cloneAndReplaceKey = function (oldElement, newKey) {
-  var newElement = ReactElement(oldElement.type, newKey, oldElement.ref, oldElement._self, oldElement._source, oldElement._owner, oldElement.props);
-
-  return newElement;
-};
-
-/**
- * Clone and return a new ReactElement using element as the starting point.
- * See https://facebook.github.io/react/docs/top-level-api.html#react.cloneelement
- */
-ReactElement.cloneElement = function (element, config, children) {
-  var propName;
-
-  // Original props are copied
-  var props = _assign({}, element.props);
-
-  // Reserved names are extracted
-  var key = element.key;
-  var ref = element.ref;
-  // Self is preserved since the owner is preserved.
-  var self = element._self;
-  // Source is preserved since cloneElement is unlikely to be targeted by a
-  // transpiler, and the original source is probably a better indicator of the
-  // true owner.
-  var source = element._source;
-
-  // Owner will be preserved, unless ref is overridden
-  var owner = element._owner;
-
-  if (config != null) {
-    if (hasValidRef(config)) {
-      // Silently steal the ref from the parent.
-      ref = config.ref;
-      owner = ReactCurrentOwner.current;
-    }
-    if (hasValidKey(config)) {
-      key = '' + config.key;
-    }
-
-    // Remaining properties override existing props
-    var defaultProps;
-    if (element.type && element.type.defaultProps) {
-      defaultProps = element.type.defaultProps;
-    }
-    for (propName in config) {
-      if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
-        if (config[propName] === undefined && defaultProps !== undefined) {
-          // Resolve default props
-          props[propName] = defaultProps[propName];
-        } else {
-          props[propName] = config[propName];
-        }
-      }
-    }
-  }
-
-  // Children can be more than one argument, and those are transferred onto
-  // the newly allocated props object.
-  var childrenLength = arguments.length - 2;
-  if (childrenLength === 1) {
-    props.children = children;
-  } else if (childrenLength > 1) {
-    var childArray = Array(childrenLength);
-    for (var i = 0; i < childrenLength; i++) {
-      childArray[i] = arguments[i + 2];
-    }
-    props.children = childArray;
-  }
-
-  return ReactElement(element.type, key, ref, self, source, owner, props);
-};
-
-/**
- * Verifies the object is a ReactElement.
- * See https://facebook.github.io/react/docs/top-level-api.html#react.isvalidelement
- * @param {?object} object
- * @return {boolean} True if `object` is a valid component.
- * @final
- */
-ReactElement.isValidElement = function (object) {
-  return typeof object === 'object' && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
-};
-
-module.exports = ReactElement;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-var emptyObject = {};
-
-if (process.env.NODE_ENV !== 'production') {
-  Object.freeze(emptyObject);
-}
-
-module.exports = emptyObject;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 var List                            = __webpack_require__(27);
-var $$Array                         = __webpack_require__(11);
+var $$Array                         = __webpack_require__(12);
 var Curry                           = __webpack_require__(2);
-var React                           = __webpack_require__(20);
+var React                           = __webpack_require__(21);
 var Caml_builtin_exceptions         = __webpack_require__(1);
 var ReasonReactOptimizedCreateClass = __webpack_require__(63);
 
@@ -4084,7 +2750,1351 @@ exports.Router                              = Router;
 
 
 /***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Block                   = __webpack_require__(22);
+var Caml_builtin_exceptions = __webpack_require__(1);
+
+function caml_obj_dup(x) {
+  var len = x.length | 0;
+  var v = new Array(len);
+  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+    v[i] = x[i];
+  }
+  v.tag = x.tag | 0;
+  return v;
+}
+
+function caml_obj_truncate(x, new_size) {
+  var len = x.length | 0;
+  if (new_size <= 0 || new_size > len) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Obj.truncate"
+        ];
+  } else if (len !== new_size) {
+    for(var i = new_size ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+      x[i] = 0;
+    }
+    x.length = new_size;
+    return /* () */0;
+  } else {
+    return 0;
+  }
+}
+
+function caml_lazy_make_forward(x) {
+  return Block.__(250, [x]);
+}
+
+function caml_update_dummy(x, y) {
+  var len = y.length | 0;
+  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+    x[i] = y[i];
+  }
+  var y_tag = y.tag | 0;
+  if (y_tag !== 0) {
+    x.tag = y_tag;
+    return /* () */0;
+  } else {
+    return 0;
+  }
+}
+
+function caml_int_compare(x, y) {
+  if (x < y) {
+    return -1;
+  } else if (x === y) {
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
+function caml_compare(_a, _b) {
+  while(true) {
+    var b = _b;
+    var a = _a;
+    if (a === b) {
+      return 0;
+    } else {
+      var a_type = typeof a;
+      var b_type = typeof b;
+      if (a_type === "string") {
+        var x = a;
+        var y = b;
+        if (x < y) {
+          return -1;
+        } else if (x === y) {
+          return 0;
+        } else {
+          return 1;
+        }
+      } else {
+        var is_a_number = +(a_type === "number");
+        var is_b_number = +(b_type === "number");
+        if (is_a_number !== 0) {
+          if (is_b_number !== 0) {
+            return caml_int_compare(a, b);
+          } else {
+            return -1;
+          }
+        } else if (is_b_number !== 0) {
+          return 1;
+        } else if (a_type === "boolean" || a_type === "undefined" || a === null) {
+          var x$1 = a;
+          var y$1 = b;
+          if (x$1 === y$1) {
+            return 0;
+          } else if (x$1 < y$1) {
+            return -1;
+          } else {
+            return 1;
+          }
+        } else if (a_type === "function" || b_type === "function") {
+          throw [
+                Caml_builtin_exceptions.invalid_argument,
+                "compare: functional value"
+              ];
+        } else {
+          var tag_a = a.tag | 0;
+          var tag_b = b.tag | 0;
+          if (tag_a === 250) {
+            _a = a[0];
+            continue ;
+            
+          } else if (tag_b === 250) {
+            _b = b[0];
+            continue ;
+            
+          } else if (tag_a === 248) {
+            return caml_int_compare(a[1], b[1]);
+          } else if (tag_a === 251) {
+            throw [
+                  Caml_builtin_exceptions.invalid_argument,
+                  "equal: abstract value"
+                ];
+          } else if (tag_a !== tag_b) {
+            if (tag_a < tag_b) {
+              return -1;
+            } else {
+              return 1;
+            }
+          } else {
+            var len_a = a.length | 0;
+            var len_b = b.length | 0;
+            if (len_a === len_b) {
+              var a$1 = a;
+              var b$1 = b;
+              var _i = 0;
+              var same_length = len_a;
+              while(true) {
+                var i = _i;
+                if (i === same_length) {
+                  return 0;
+                } else {
+                  var res = caml_compare(a$1[i], b$1[i]);
+                  if (res !== 0) {
+                    return res;
+                  } else {
+                    _i = i + 1 | 0;
+                    continue ;
+                    
+                  }
+                }
+              };
+            } else if (len_a < len_b) {
+              var a$2 = a;
+              var b$2 = b;
+              var _i$1 = 0;
+              var short_length = len_a;
+              while(true) {
+                var i$1 = _i$1;
+                if (i$1 === short_length) {
+                  return -1;
+                } else {
+                  var res$1 = caml_compare(a$2[i$1], b$2[i$1]);
+                  if (res$1 !== 0) {
+                    return res$1;
+                  } else {
+                    _i$1 = i$1 + 1 | 0;
+                    continue ;
+                    
+                  }
+                }
+              };
+            } else {
+              var a$3 = a;
+              var b$3 = b;
+              var _i$2 = 0;
+              var short_length$1 = len_b;
+              while(true) {
+                var i$2 = _i$2;
+                if (i$2 === short_length$1) {
+                  return 1;
+                } else {
+                  var res$2 = caml_compare(a$3[i$2], b$3[i$2]);
+                  if (res$2 !== 0) {
+                    return res$2;
+                  } else {
+                    _i$2 = i$2 + 1 | 0;
+                    continue ;
+                    
+                  }
+                }
+              };
+            }
+          }
+        }
+      }
+    }
+  };
+}
+
+function caml_equal(_a, _b) {
+  while(true) {
+    var b = _b;
+    var a = _a;
+    if (a === b) {
+      return /* true */1;
+    } else {
+      var a_type = typeof a;
+      if (a_type === "string" || a_type === "number" || a_type === "boolean" || a_type === "undefined" || a === null) {
+        return /* false */0;
+      } else {
+        var b_type = typeof b;
+        if (a_type === "function" || b_type === "function") {
+          throw [
+                Caml_builtin_exceptions.invalid_argument,
+                "equal: functional value"
+              ];
+        } else if (b_type === "number" || b_type === "undefined" || b === null) {
+          return /* false */0;
+        } else {
+          var tag_a = a.tag | 0;
+          var tag_b = b.tag | 0;
+          if (tag_a === 250) {
+            _a = a[0];
+            continue ;
+            
+          } else if (tag_b === 250) {
+            _b = b[0];
+            continue ;
+            
+          } else if (tag_a === 248) {
+            return +(a[1] === b[1]);
+          } else if (tag_a === 251) {
+            throw [
+                  Caml_builtin_exceptions.invalid_argument,
+                  "equal: abstract value"
+                ];
+          } else if (tag_a !== tag_b) {
+            return /* false */0;
+          } else {
+            var len_a = a.length | 0;
+            var len_b = b.length | 0;
+            if (len_a === len_b) {
+              var a$1 = a;
+              var b$1 = b;
+              var _i = 0;
+              var same_length = len_a;
+              while(true) {
+                var i = _i;
+                if (i === same_length) {
+                  return /* true */1;
+                } else if (caml_equal(a$1[i], b$1[i])) {
+                  _i = i + 1 | 0;
+                  continue ;
+                  
+                } else {
+                  return /* false */0;
+                }
+              };
+            } else {
+              return /* false */0;
+            }
+          }
+        }
+      }
+    }
+  };
+}
+
+function caml_notequal(a, b) {
+  return 1 - caml_equal(a, b);
+}
+
+function caml_greaterequal(a, b) {
+  return +(caml_compare(a, b) >= 0);
+}
+
+function caml_greaterthan(a, b) {
+  return +(caml_compare(a, b) > 0);
+}
+
+function caml_lessequal(a, b) {
+  return +(caml_compare(a, b) <= 0);
+}
+
+function caml_lessthan(a, b) {
+  return +(caml_compare(a, b) < 0);
+}
+
+var caml_int32_compare = caml_int_compare;
+
+var caml_nativeint_compare = caml_int_compare;
+
+exports.caml_obj_dup           = caml_obj_dup;
+exports.caml_obj_truncate      = caml_obj_truncate;
+exports.caml_lazy_make_forward = caml_lazy_make_forward;
+exports.caml_update_dummy      = caml_update_dummy;
+exports.caml_int_compare       = caml_int_compare;
+exports.caml_int32_compare     = caml_int32_compare;
+exports.caml_nativeint_compare = caml_nativeint_compare;
+exports.caml_compare           = caml_compare;
+exports.caml_equal             = caml_equal;
+exports.caml_notequal          = caml_notequal;
+exports.caml_greaterequal      = caml_greaterequal;
+exports.caml_greaterthan       = caml_greaterthan;
+exports.caml_lessthan          = caml_lessthan;
+exports.caml_lessequal         = caml_lessequal;
+/* No side effect */
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Caml_builtin_exceptions = __webpack_require__(1);
+
+function string_of_char(prim) {
+  return String.fromCharCode(prim);
+}
+
+function caml_string_get(s, i) {
+  if (i >= s.length || i < 0) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "index out of bounds"
+        ];
+  } else {
+    return s.charCodeAt(i);
+  }
+}
+
+function caml_create_string(len) {
+  if (len < 0) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "String.create"
+        ];
+  } else {
+    return new Array(len);
+  }
+}
+
+function caml_string_compare(s1, s2) {
+  if (s1 === s2) {
+    return 0;
+  } else if (s1 < s2) {
+    return -1;
+  } else {
+    return 1;
+  }
+}
+
+function caml_fill_string(s, i, l, c) {
+  if (l > 0) {
+    for(var k = i ,k_finish = (l + i | 0) - 1 | 0; k <= k_finish; ++k){
+      s[k] = c;
+    }
+    return /* () */0;
+  } else {
+    return 0;
+  }
+}
+
+function caml_blit_string(s1, i1, s2, i2, len) {
+  if (len > 0) {
+    var off1 = s1.length - i1 | 0;
+    if (len <= off1) {
+      for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+        s2[i2 + i | 0] = s1.charCodeAt(i1 + i | 0);
+      }
+      return /* () */0;
+    } else {
+      for(var i$1 = 0 ,i_finish$1 = off1 - 1 | 0; i$1 <= i_finish$1; ++i$1){
+        s2[i2 + i$1 | 0] = s1.charCodeAt(i1 + i$1 | 0);
+      }
+      for(var i$2 = off1 ,i_finish$2 = len - 1 | 0; i$2 <= i_finish$2; ++i$2){
+        s2[i2 + i$2 | 0] = /* "\000" */0;
+      }
+      return /* () */0;
+    }
+  } else {
+    return 0;
+  }
+}
+
+function caml_blit_bytes(s1, i1, s2, i2, len) {
+  if (len > 0) {
+    if (s1 === s2) {
+      var s1$1 = s1;
+      var i1$1 = i1;
+      var i2$1 = i2;
+      var len$1 = len;
+      if (i1$1 < i2$1) {
+        var range_a = (s1$1.length - i2$1 | 0) - 1 | 0;
+        var range_b = len$1 - 1 | 0;
+        var range = range_a > range_b ? range_b : range_a;
+        for(var j = range; j >= 0; --j){
+          s1$1[i2$1 + j | 0] = s1$1[i1$1 + j | 0];
+        }
+        return /* () */0;
+      } else if (i1$1 > i2$1) {
+        var range_a$1 = (s1$1.length - i1$1 | 0) - 1 | 0;
+        var range_b$1 = len$1 - 1 | 0;
+        var range$1 = range_a$1 > range_b$1 ? range_b$1 : range_a$1;
+        for(var k = 0; k <= range$1; ++k){
+          s1$1[i2$1 + k | 0] = s1$1[i1$1 + k | 0];
+        }
+        return /* () */0;
+      } else {
+        return 0;
+      }
+    } else {
+      var off1 = s1.length - i1 | 0;
+      if (len <= off1) {
+        for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+          s2[i2 + i | 0] = s1[i1 + i | 0];
+        }
+        return /* () */0;
+      } else {
+        for(var i$1 = 0 ,i_finish$1 = off1 - 1 | 0; i$1 <= i_finish$1; ++i$1){
+          s2[i2 + i$1 | 0] = s1[i1 + i$1 | 0];
+        }
+        for(var i$2 = off1 ,i_finish$2 = len - 1 | 0; i$2 <= i_finish$2; ++i$2){
+          s2[i2 + i$2 | 0] = /* "\000" */0;
+        }
+        return /* () */0;
+      }
+    }
+  } else {
+    return 0;
+  }
+}
+
+function bytes_of_string(s) {
+  var len = s.length;
+  var res = new Array(len);
+  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+    res[i] = s.charCodeAt(i);
+  }
+  return res;
+}
+
+function bytes_to_string(a) {
+  var bytes = a;
+  var i = 0;
+  var len = a.length;
+  var s = "";
+  var s_len = len;
+  if (i === 0 && len <= 4096 && len === bytes.length) {
+    return String.fromCharCode.apply(null,bytes);
+  } else {
+    var offset = 0;
+    while(s_len > 0) {
+      var next = s_len < 1024 ? s_len : 1024;
+      var tmp_bytes = new Array(next);
+      caml_blit_bytes(bytes, offset, tmp_bytes, 0, next);
+      s = s + String.fromCharCode.apply(null,tmp_bytes);
+      s_len = s_len - next | 0;
+      offset = offset + next | 0;
+    };
+    return s;
+  }
+}
+
+function caml_string_of_char_array(chars) {
+  var len = chars.length;
+  var bytes = new Array(len);
+  for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+    bytes[i] = chars[i];
+  }
+  return bytes_to_string(bytes);
+}
+
+function caml_is_printable(c) {
+  if (c > 31) {
+    return +(c < 127);
+  } else {
+    return /* false */0;
+  }
+}
+
+function caml_string_get16(s, i) {
+  return s.charCodeAt(i) + (s.charCodeAt(i + 1 | 0) << 8) | 0;
+}
+
+function caml_string_get32(s, i) {
+  return ((s.charCodeAt(i) + (s.charCodeAt(i + 1 | 0) << 8) | 0) + (s.charCodeAt(i + 2 | 0) << 16) | 0) + (s.charCodeAt(i + 3 | 0) << 24) | 0;
+}
+
+function get(s, i) {
+  if (i < 0 || i >= s.length) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "index out of bounds"
+        ];
+  } else {
+    return s.charCodeAt(i);
+  }
+}
+
+exports.bytes_of_string           = bytes_of_string;
+exports.bytes_to_string           = bytes_to_string;
+exports.caml_is_printable         = caml_is_printable;
+exports.caml_string_of_char_array = caml_string_of_char_array;
+exports.caml_string_get           = caml_string_get;
+exports.caml_string_compare       = caml_string_compare;
+exports.caml_create_string        = caml_create_string;
+exports.caml_fill_string          = caml_fill_string;
+exports.caml_blit_string          = caml_blit_string;
+exports.caml_blit_bytes           = caml_blit_bytes;
+exports.caml_string_get16         = caml_string_get16;
+exports.caml_string_get32         = caml_string_get32;
+exports.string_of_char            = string_of_char;
+exports.get                       = get;
+/* No side effect */
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Curry                   = __webpack_require__(2);
+var Js_exn                  = __webpack_require__(40);
+var Caml_array              = __webpack_require__(8);
+var Caml_exceptions         = __webpack_require__(23);
+var Caml_builtin_exceptions = __webpack_require__(1);
+
+function init(l, f) {
+  if (l) {
+    if (l < 0) {
+      throw [
+            Caml_builtin_exceptions.invalid_argument,
+            "Array.init"
+          ];
+    } else {
+      var res = Caml_array.caml_make_vect(l, Curry._1(f, 0));
+      for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+        res[i] = Curry._1(f, i);
+      }
+      return res;
+    }
+  } else {
+    return /* array */[];
+  }
+}
+
+function make_matrix(sx, sy, init) {
+  var res = Caml_array.caml_make_vect(sx, /* array */[]);
+  for(var x = 0 ,x_finish = sx - 1 | 0; x <= x_finish; ++x){
+    res[x] = Caml_array.caml_make_vect(sy, init);
+  }
+  return res;
+}
+
+function copy(a) {
+  var l = a.length;
+  if (l) {
+    return Caml_array.caml_array_sub(a, 0, l);
+  } else {
+    return /* array */[];
+  }
+}
+
+function append(a1, a2) {
+  var l1 = a1.length;
+  if (l1) {
+    if (a2.length) {
+      return a1.concat(a2);
+    } else {
+      return Caml_array.caml_array_sub(a1, 0, l1);
+    }
+  } else {
+    return copy(a2);
+  }
+}
+
+function sub(a, ofs, len) {
+  if (len < 0 || ofs > (a.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.sub"
+        ];
+  } else {
+    return Caml_array.caml_array_sub(a, ofs, len);
+  }
+}
+
+function fill(a, ofs, len, v) {
+  if (ofs < 0 || len < 0 || ofs > (a.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.fill"
+        ];
+  } else {
+    for(var i = ofs ,i_finish = (ofs + len | 0) - 1 | 0; i <= i_finish; ++i){
+      a[i] = v;
+    }
+    return /* () */0;
+  }
+}
+
+function blit(a1, ofs1, a2, ofs2, len) {
+  if (len < 0 || ofs1 < 0 || ofs1 > (a1.length - len | 0) || ofs2 < 0 || ofs2 > (a2.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.blit"
+        ];
+  } else {
+    return Caml_array.caml_array_blit(a1, ofs1, a2, ofs2, len);
+  }
+}
+
+function iter(f, a) {
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    Curry._1(f, a[i]);
+  }
+  return /* () */0;
+}
+
+function map(f, a) {
+  var l = a.length;
+  if (l) {
+    var r = Caml_array.caml_make_vect(l, Curry._1(f, a[0]));
+    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+      r[i] = Curry._1(f, a[i]);
+    }
+    return r;
+  } else {
+    return /* array */[];
+  }
+}
+
+function iteri(f, a) {
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    Curry._2(f, i, a[i]);
+  }
+  return /* () */0;
+}
+
+function mapi(f, a) {
+  var l = a.length;
+  if (l) {
+    var r = Caml_array.caml_make_vect(l, Curry._2(f, 0, a[0]));
+    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+      r[i] = Curry._2(f, i, a[i]);
+    }
+    return r;
+  } else {
+    return /* array */[];
+  }
+}
+
+function to_list(a) {
+  var _i = a.length - 1 | 0;
+  var _res = /* [] */0;
+  while(true) {
+    var res = _res;
+    var i = _i;
+    if (i < 0) {
+      return res;
+    } else {
+      _res = /* :: */[
+        a[i],
+        res
+      ];
+      _i = i - 1 | 0;
+      continue ;
+      
+    }
+  };
+}
+
+function list_length(_accu, _param) {
+  while(true) {
+    var param = _param;
+    var accu = _accu;
+    if (param) {
+      _param = param[1];
+      _accu = accu + 1 | 0;
+      continue ;
+      
+    } else {
+      return accu;
+    }
+  };
+}
+
+function of_list(l) {
+  if (l) {
+    var a = Caml_array.caml_make_vect(list_length(0, l), l[0]);
+    var _i = 1;
+    var _param = l[1];
+    while(true) {
+      var param = _param;
+      var i = _i;
+      if (param) {
+        a[i] = param[0];
+        _param = param[1];
+        _i = i + 1 | 0;
+        continue ;
+        
+      } else {
+        return a;
+      }
+    };
+  } else {
+    return /* array */[];
+  }
+}
+
+function fold_left(f, x, a) {
+  var r = x;
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    r = Curry._2(f, r, a[i]);
+  }
+  return r;
+}
+
+function fold_right(f, a, x) {
+  var r = x;
+  for(var i = a.length - 1 | 0; i >= 0; --i){
+    r = Curry._2(f, a[i], r);
+  }
+  return r;
+}
+
+var Bottom = Caml_exceptions.create("Array.Bottom");
+
+function sort(cmp, a) {
+  var maxson = function (l, i) {
+    var i31 = ((i + i | 0) + i | 0) + 1 | 0;
+    var x = i31;
+    if ((i31 + 2 | 0) < l) {
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
+        x = i31 + 1 | 0;
+      }
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, x), Caml_array.caml_array_get(a, i31 + 2 | 0)) < 0) {
+        x = i31 + 2 | 0;
+      }
+      return x;
+    } else if ((i31 + 1 | 0) < l && Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
+      return i31 + 1 | 0;
+    } else if (i31 < l) {
+      return i31;
+    } else {
+      throw [
+            Bottom,
+            i
+          ];
+    }
+  };
+  var trickle = function (l, i, e) {
+    try {
+      var l$1 = l;
+      var _i = i;
+      var e$1 = e;
+      while(true) {
+        var i$1 = _i;
+        var j = maxson(l$1, i$1);
+        if (Curry._2(cmp, Caml_array.caml_array_get(a, j), e$1) > 0) {
+          Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
+          _i = j;
+          continue ;
+          
+        } else {
+          return Caml_array.caml_array_set(a, i$1, e$1);
+        }
+      };
+    }
+    catch (raw_exn){
+      var exn = Js_exn.internalToOCamlException(raw_exn);
+      if (exn[0] === Bottom) {
+        return Caml_array.caml_array_set(a, exn[1], e);
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var bubble = function (l, i) {
+    try {
+      var l$1 = l;
+      var _i = i;
+      while(true) {
+        var i$1 = _i;
+        var j = maxson(l$1, i$1);
+        Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
+        _i = j;
+        continue ;
+        
+      };
+    }
+    catch (raw_exn){
+      var exn = Js_exn.internalToOCamlException(raw_exn);
+      if (exn[0] === Bottom) {
+        return exn[1];
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var trickleup = function (_i, e) {
+    while(true) {
+      var i = _i;
+      var father = (i - 1 | 0) / 3 | 0;
+      if (i === father) {
+        throw [
+              Caml_builtin_exceptions.assert_failure,
+              [
+                "array.ml",
+                168,
+                4
+              ]
+            ];
+      }
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, father), e) < 0) {
+        Caml_array.caml_array_set(a, i, Caml_array.caml_array_get(a, father));
+        if (father > 0) {
+          _i = father;
+          continue ;
+          
+        } else {
+          return Caml_array.caml_array_set(a, 0, e);
+        }
+      } else {
+        return Caml_array.caml_array_set(a, i, e);
+      }
+    };
+  };
+  var l = a.length;
+  for(var i = ((l + 1 | 0) / 3 | 0) - 1 | 0; i >= 0; --i){
+    trickle(l, i, Caml_array.caml_array_get(a, i));
+  }
+  for(var i$1 = l - 1 | 0; i$1 >= 2; --i$1){
+    var e = Caml_array.caml_array_get(a, i$1);
+    Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, 0));
+    trickleup(bubble(i$1, 0), e);
+  }
+  if (l > 1) {
+    var e$1 = Caml_array.caml_array_get(a, 1);
+    Caml_array.caml_array_set(a, 1, Caml_array.caml_array_get(a, 0));
+    return Caml_array.caml_array_set(a, 0, e$1);
+  } else {
+    return 0;
+  }
+}
+
+function stable_sort(cmp, a) {
+  var merge = function (src1ofs, src1len, src2, src2ofs, src2len, dst, dstofs) {
+    var src1r = src1ofs + src1len | 0;
+    var src2r = src2ofs + src2len | 0;
+    var _i1 = src1ofs;
+    var _s1 = Caml_array.caml_array_get(a, src1ofs);
+    var _i2 = src2ofs;
+    var _s2 = Caml_array.caml_array_get(src2, src2ofs);
+    var _d = dstofs;
+    while(true) {
+      var d = _d;
+      var s2 = _s2;
+      var i2 = _i2;
+      var s1 = _s1;
+      var i1 = _i1;
+      if (Curry._2(cmp, s1, s2) <= 0) {
+        Caml_array.caml_array_set(dst, d, s1);
+        var i1$1 = i1 + 1 | 0;
+        if (i1$1 < src1r) {
+          _d = d + 1 | 0;
+          _s1 = Caml_array.caml_array_get(a, i1$1);
+          _i1 = i1$1;
+          continue ;
+          
+        } else {
+          return blit(src2, i2, dst, d + 1 | 0, src2r - i2 | 0);
+        }
+      } else {
+        Caml_array.caml_array_set(dst, d, s2);
+        var i2$1 = i2 + 1 | 0;
+        if (i2$1 < src2r) {
+          _d = d + 1 | 0;
+          _s2 = Caml_array.caml_array_get(src2, i2$1);
+          _i2 = i2$1;
+          continue ;
+          
+        } else {
+          return blit(a, i1, dst, d + 1 | 0, src1r - i1 | 0);
+        }
+      }
+    };
+  };
+  var isortto = function (srcofs, dst, dstofs, len) {
+    for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+      var e = Caml_array.caml_array_get(a, srcofs + i | 0);
+      var j = (dstofs + i | 0) - 1 | 0;
+      while(j >= dstofs && Curry._2(cmp, Caml_array.caml_array_get(dst, j), e) > 0) {
+        Caml_array.caml_array_set(dst, j + 1 | 0, Caml_array.caml_array_get(dst, j));
+        j = j - 1 | 0;
+      };
+      Caml_array.caml_array_set(dst, j + 1 | 0, e);
+    }
+    return /* () */0;
+  };
+  var sortto = function (srcofs, dst, dstofs, len) {
+    if (len <= 5) {
+      return isortto(srcofs, dst, dstofs, len);
+    } else {
+      var l1 = len / 2 | 0;
+      var l2 = len - l1 | 0;
+      sortto(srcofs + l1 | 0, dst, dstofs + l1 | 0, l2);
+      sortto(srcofs, a, srcofs + l2 | 0, l1);
+      return merge(srcofs + l2 | 0, l1, dst, dstofs + l1 | 0, l2, dst, dstofs);
+    }
+  };
+  var l = a.length;
+  if (l <= 5) {
+    return isortto(0, a, 0, l);
+  } else {
+    var l1 = l / 2 | 0;
+    var l2 = l - l1 | 0;
+    var t = Caml_array.caml_make_vect(l2, Caml_array.caml_array_get(a, 0));
+    sortto(l1, t, 0, l2);
+    sortto(0, a, l2, l1);
+    return merge(l2, l1, t, 0, l2, a, 0);
+  }
+}
+
+var create_matrix = make_matrix;
+
+var concat = Caml_array.caml_array_concat;
+
+var fast_sort = stable_sort;
+
+exports.init          = init;
+exports.make_matrix   = make_matrix;
+exports.create_matrix = create_matrix;
+exports.append        = append;
+exports.concat        = concat;
+exports.sub           = sub;
+exports.copy          = copy;
+exports.fill          = fill;
+exports.blit          = blit;
+exports.to_list       = to_list;
+exports.of_list       = of_list;
+exports.iter          = iter;
+exports.map           = map;
+exports.iteri         = iteri;
+exports.mapi          = mapi;
+exports.fold_left     = fold_left;
+exports.fold_right    = fold_right;
+exports.sort          = sort;
+exports.stable_sort   = stable_sort;
+exports.fast_sort     = fast_sort;
+/* No side effect */
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+
+
+var _assign = __webpack_require__(5);
+
+var ReactCurrentOwner = __webpack_require__(25);
+
+var warning = __webpack_require__(4);
+var canDefineProperty = __webpack_require__(24);
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+var REACT_ELEMENT_TYPE = __webpack_require__(43);
+
+var RESERVED_PROPS = {
+  key: true,
+  ref: true,
+  __self: true,
+  __source: true
+};
+
+var specialPropKeyWarningShown, specialPropRefWarningShown;
+
+function hasValidRef(config) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (hasOwnProperty.call(config, 'ref')) {
+      var getter = Object.getOwnPropertyDescriptor(config, 'ref').get;
+      if (getter && getter.isReactWarning) {
+        return false;
+      }
+    }
+  }
+  return config.ref !== undefined;
+}
+
+function hasValidKey(config) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (hasOwnProperty.call(config, 'key')) {
+      var getter = Object.getOwnPropertyDescriptor(config, 'key').get;
+      if (getter && getter.isReactWarning) {
+        return false;
+      }
+    }
+  }
+  return config.key !== undefined;
+}
+
+function defineKeyPropWarningGetter(props, displayName) {
+  var warnAboutAccessingKey = function () {
+    if (!specialPropKeyWarningShown) {
+      specialPropKeyWarningShown = true;
+      process.env.NODE_ENV !== 'production' ? warning(false, '%s: `key` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
+    }
+  };
+  warnAboutAccessingKey.isReactWarning = true;
+  Object.defineProperty(props, 'key', {
+    get: warnAboutAccessingKey,
+    configurable: true
+  });
+}
+
+function defineRefPropWarningGetter(props, displayName) {
+  var warnAboutAccessingRef = function () {
+    if (!specialPropRefWarningShown) {
+      specialPropRefWarningShown = true;
+      process.env.NODE_ENV !== 'production' ? warning(false, '%s: `ref` is not a prop. Trying to access it will result ' + 'in `undefined` being returned. If you need to access the same ' + 'value within the child component, you should pass it as a different ' + 'prop. (https://fb.me/react-special-props)', displayName) : void 0;
+    }
+  };
+  warnAboutAccessingRef.isReactWarning = true;
+  Object.defineProperty(props, 'ref', {
+    get: warnAboutAccessingRef,
+    configurable: true
+  });
+}
+
+/**
+ * Factory method to create a new React element. This no longer adheres to
+ * the class pattern, so do not use new to call it. Also, no instanceof check
+ * will work. Instead test $$typeof field against Symbol.for('react.element') to check
+ * if something is a React Element.
+ *
+ * @param {*} type
+ * @param {*} key
+ * @param {string|object} ref
+ * @param {*} self A *temporary* helper to detect places where `this` is
+ * different from the `owner` when React.createElement is called, so that we
+ * can warn. We want to get rid of owner and replace string `ref`s with arrow
+ * functions, and as long as `this` and owner are the same, there will be no
+ * change in behavior.
+ * @param {*} source An annotation object (added by a transpiler or otherwise)
+ * indicating filename, line number, and/or other information.
+ * @param {*} owner
+ * @param {*} props
+ * @internal
+ */
+var ReactElement = function (type, key, ref, self, source, owner, props) {
+  var element = {
+    // This tag allow us to uniquely identify this as a React Element
+    $$typeof: REACT_ELEMENT_TYPE,
+
+    // Built-in properties that belong on the element
+    type: type,
+    key: key,
+    ref: ref,
+    props: props,
+
+    // Record the component responsible for creating this element.
+    _owner: owner
+  };
+
+  if (process.env.NODE_ENV !== 'production') {
+    // The validation flag is currently mutative. We put it on
+    // an external backing store so that we can freeze the whole object.
+    // This can be replaced with a WeakMap once they are implemented in
+    // commonly used development environments.
+    element._store = {};
+
+    // To make comparing ReactElements easier for testing purposes, we make
+    // the validation flag non-enumerable (where possible, which should
+    // include every environment we run tests in), so the test framework
+    // ignores it.
+    if (canDefineProperty) {
+      Object.defineProperty(element._store, 'validated', {
+        configurable: false,
+        enumerable: false,
+        writable: true,
+        value: false
+      });
+      // self and source are DEV only properties.
+      Object.defineProperty(element, '_self', {
+        configurable: false,
+        enumerable: false,
+        writable: false,
+        value: self
+      });
+      // Two elements created in two different places should be considered
+      // equal for testing purposes and therefore we hide it from enumeration.
+      Object.defineProperty(element, '_source', {
+        configurable: false,
+        enumerable: false,
+        writable: false,
+        value: source
+      });
+    } else {
+      element._store.validated = false;
+      element._self = self;
+      element._source = source;
+    }
+    if (Object.freeze) {
+      Object.freeze(element.props);
+      Object.freeze(element);
+    }
+  }
+
+  return element;
+};
+
+/**
+ * Create and return a new ReactElement of the given type.
+ * See https://facebook.github.io/react/docs/top-level-api.html#react.createelement
+ */
+ReactElement.createElement = function (type, config, children) {
+  var propName;
+
+  // Reserved names are extracted
+  var props = {};
+
+  var key = null;
+  var ref = null;
+  var self = null;
+  var source = null;
+
+  if (config != null) {
+    if (hasValidRef(config)) {
+      ref = config.ref;
+    }
+    if (hasValidKey(config)) {
+      key = '' + config.key;
+    }
+
+    self = config.__self === undefined ? null : config.__self;
+    source = config.__source === undefined ? null : config.__source;
+    // Remaining properties are added to a new props object
+    for (propName in config) {
+      if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+        props[propName] = config[propName];
+      }
+    }
+  }
+
+  // Children can be more than one argument, and those are transferred onto
+  // the newly allocated props object.
+  var childrenLength = arguments.length - 2;
+  if (childrenLength === 1) {
+    props.children = children;
+  } else if (childrenLength > 1) {
+    var childArray = Array(childrenLength);
+    for (var i = 0; i < childrenLength; i++) {
+      childArray[i] = arguments[i + 2];
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      if (Object.freeze) {
+        Object.freeze(childArray);
+      }
+    }
+    props.children = childArray;
+  }
+
+  // Resolve default props
+  if (type && type.defaultProps) {
+    var defaultProps = type.defaultProps;
+    for (propName in defaultProps) {
+      if (props[propName] === undefined) {
+        props[propName] = defaultProps[propName];
+      }
+    }
+  }
+  if (process.env.NODE_ENV !== 'production') {
+    if (key || ref) {
+      if (typeof props.$$typeof === 'undefined' || props.$$typeof !== REACT_ELEMENT_TYPE) {
+        var displayName = typeof type === 'function' ? type.displayName || type.name || 'Unknown' : type;
+        if (key) {
+          defineKeyPropWarningGetter(props, displayName);
+        }
+        if (ref) {
+          defineRefPropWarningGetter(props, displayName);
+        }
+      }
+    }
+  }
+  return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
+};
+
+/**
+ * Return a function that produces ReactElements of a given type.
+ * See https://facebook.github.io/react/docs/top-level-api.html#react.createfactory
+ */
+ReactElement.createFactory = function (type) {
+  var factory = ReactElement.createElement.bind(null, type);
+  // Expose the type on the factory and the prototype so that it can be
+  // easily accessed on elements. E.g. `<Foo />.type === Foo`.
+  // This should not be named `constructor` since this may not be the function
+  // that created the element, and it may not even be a constructor.
+  // Legacy hook TODO: Warn if this is accessed
+  factory.type = type;
+  return factory;
+};
+
+ReactElement.cloneAndReplaceKey = function (oldElement, newKey) {
+  var newElement = ReactElement(oldElement.type, newKey, oldElement.ref, oldElement._self, oldElement._source, oldElement._owner, oldElement.props);
+
+  return newElement;
+};
+
+/**
+ * Clone and return a new ReactElement using element as the starting point.
+ * See https://facebook.github.io/react/docs/top-level-api.html#react.cloneelement
+ */
+ReactElement.cloneElement = function (element, config, children) {
+  var propName;
+
+  // Original props are copied
+  var props = _assign({}, element.props);
+
+  // Reserved names are extracted
+  var key = element.key;
+  var ref = element.ref;
+  // Self is preserved since the owner is preserved.
+  var self = element._self;
+  // Source is preserved since cloneElement is unlikely to be targeted by a
+  // transpiler, and the original source is probably a better indicator of the
+  // true owner.
+  var source = element._source;
+
+  // Owner will be preserved, unless ref is overridden
+  var owner = element._owner;
+
+  if (config != null) {
+    if (hasValidRef(config)) {
+      // Silently steal the ref from the parent.
+      ref = config.ref;
+      owner = ReactCurrentOwner.current;
+    }
+    if (hasValidKey(config)) {
+      key = '' + config.key;
+    }
+
+    // Remaining properties override existing props
+    var defaultProps;
+    if (element.type && element.type.defaultProps) {
+      defaultProps = element.type.defaultProps;
+    }
+    for (propName in config) {
+      if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+        if (config[propName] === undefined && defaultProps !== undefined) {
+          // Resolve default props
+          props[propName] = defaultProps[propName];
+        } else {
+          props[propName] = config[propName];
+        }
+      }
+    }
+  }
+
+  // Children can be more than one argument, and those are transferred onto
+  // the newly allocated props object.
+  var childrenLength = arguments.length - 2;
+  if (childrenLength === 1) {
+    props.children = children;
+  } else if (childrenLength > 1) {
+    var childArray = Array(childrenLength);
+    for (var i = 0; i < childrenLength; i++) {
+      childArray[i] = arguments[i + 2];
+    }
+    props.children = childArray;
+  }
+
+  return ReactElement(element.type, key, ref, self, source, owner, props);
+};
+
+/**
+ * Verifies the object is a ReactElement.
+ * See https://facebook.github.io/react/docs/top-level-api.html#react.isvalidelement
+ * @param {?object} object
+ * @return {boolean} True if `object` is a valid component.
+ * @final
+ */
+ReactElement.isValidElement = function (object) {
+  return typeof object === 'object' && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
+};
+
+module.exports = ReactElement;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+
+
+var emptyObject = {};
+
+if (process.env.NODE_ENV !== 'production') {
+  Object.freeze(emptyObject);
+}
+
+module.exports = emptyObject;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
 /* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(65);
+
+
+/***/ }),
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4126,14 +4136,14 @@ function reactProdInvariant(code) {
 module.exports = reactProdInvariant;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var Curry                   = __webpack_require__(2);
-var Caml_int32              = __webpack_require__(17);
+var Caml_int32              = __webpack_require__(18);
 var Caml_int64              = __webpack_require__(28);
 var Caml_utils              = __webpack_require__(39);
 var Caml_builtin_exceptions = __webpack_require__(1);
@@ -4934,7 +4944,7 @@ exports.caml_nativeint_of_string = caml_nativeint_of_string;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4983,7 +4993,7 @@ exports.imul                 = imul;
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4997,164 +5007,7 @@ exports.not_implemented = not_implemented;
 
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(65);
-
-
-/***/ }),
 /* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-if (process.env.NODE_ENV === 'production') {
-  module.exports = __webpack_require__(52);
-} else {
-  module.exports = __webpack_require__(53);
-}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-
-function __(tag, block) {
-  block.tag = tag;
-  return block;
-}
-
-exports.__ = __;
-/* No side effect */
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-
-var id = [0];
-
-function caml_set_oo_id(b) {
-  b[1] = id[0];
-  id[0] += 1;
-  return b;
-}
-
-function get_id() {
-  id[0] += 1;
-  return id[0];
-}
-
-function create(str) {
-  var v_001 = get_id(/* () */0);
-  var v = /* tuple */[
-    str,
-    v_001
-  ];
-  v.tag = 248;
-  return v;
-}
-
-function isCamlExceptionOrOpenVariant(e) {
-  if (e === undefined) {
-    return /* false */0;
-  } else if (e.tag === 248) {
-    return /* true */1;
-  } else {
-    var slot = e[0];
-    if (slot !== undefined) {
-      return +(slot.tag === 248);
-    } else {
-      return /* false */0;
-    }
-  }
-}
-
-exports.caml_set_oo_id               = caml_set_oo_id;
-exports.get_id                       = get_id;
-exports.create                       = create;
-exports.isCamlExceptionOrOpenVariant = isCamlExceptionOrOpenVariant;
-/* No side effect */
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-
-
-var canDefineProperty = false;
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    // $FlowFixMe https://github.com/facebook/flow/issues/285
-    Object.defineProperty({}, 'x', { get: function () {} });
-    canDefineProperty = true;
-  } catch (x) {
-    // IE will fail on defineProperty
-  }
-}
-
-module.exports = canDefineProperty;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-
-
-/**
- * Keeps track of the current owner.
- *
- * The current owner is the component who should own any components that are
- * currently being constructed.
- */
-var ReactCurrentOwner = {
-  /**
-   * @internal
-   * @type {ReactComponent}
-   */
-  current: null
-};
-
-module.exports = ReactCurrentOwner;
-
-/***/ }),
-/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5210,6 +5063,153 @@ exports.renderToElementWithId        = renderToElementWithId;
 exports.Style                        = Style;
 /* react-dom Not a pure module */
 
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+if (process.env.NODE_ENV === 'production') {
+  module.exports = __webpack_require__(52);
+} else {
+  module.exports = __webpack_require__(53);
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+
+function __(tag, block) {
+  block.tag = tag;
+  return block;
+}
+
+exports.__ = __;
+/* No side effect */
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+
+var id = [0];
+
+function caml_set_oo_id(b) {
+  b[1] = id[0];
+  id[0] += 1;
+  return b;
+}
+
+function get_id() {
+  id[0] += 1;
+  return id[0];
+}
+
+function create(str) {
+  var v_001 = get_id(/* () */0);
+  var v = /* tuple */[
+    str,
+    v_001
+  ];
+  v.tag = 248;
+  return v;
+}
+
+function isCamlExceptionOrOpenVariant(e) {
+  if (e === undefined) {
+    return /* false */0;
+  } else if (e.tag === 248) {
+    return /* true */1;
+  } else {
+    var slot = e[0];
+    if (slot !== undefined) {
+      return +(slot.tag === 248);
+    } else {
+      return /* false */0;
+    }
+  }
+}
+
+exports.caml_set_oo_id               = caml_set_oo_id;
+exports.get_id                       = get_id;
+exports.create                       = create;
+exports.isCamlExceptionOrOpenVariant = isCamlExceptionOrOpenVariant;
+/* No side effect */
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
+
+
+
+var canDefineProperty = false;
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    // $FlowFixMe https://github.com/facebook/flow/issues/285
+    Object.defineProperty({}, 'x', { get: function () {} });
+    canDefineProperty = true;
+  } catch (x) {
+    // IE will fail on defineProperty
+  }
+}
+
+module.exports = canDefineProperty;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
+
+
+
+/**
+ * Keeps track of the current owner.
+ *
+ * The current owner is the component who should own any components that are
+ * currently being constructed.
+ */
+var ReactCurrentOwner = {
+  /**
+   * @internal
+   * @type {ReactComponent}
+   */
+  current: null
+};
+
+module.exports = ReactCurrentOwner;
 
 /***/ }),
 /* 26 */
@@ -5286,7 +5286,7 @@ module.exports = checkPropTypes;
 
 
 var Curry                   = __webpack_require__(2);
-var Caml_obj                = __webpack_require__(9);
+var Caml_obj                = __webpack_require__(10);
 var Pervasives              = __webpack_require__(6);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -6983,8 +6983,8 @@ exports.merge        = merge;
 "use strict";
 
 
-var Caml_obj                = __webpack_require__(9);
-var Caml_int32              = __webpack_require__(17);
+var Caml_obj                = __webpack_require__(10);
+var Caml_int32              = __webpack_require__(18);
 var Caml_utils              = __webpack_require__(39);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -7668,9 +7668,9 @@ module.exports = lowPriorityWarning;
 
 
 
-var _prodInvariant = __webpack_require__(15);
+var _prodInvariant = __webpack_require__(16);
 
-var ReactCurrentOwner = __webpack_require__(24);
+var ReactCurrentOwner = __webpack_require__(25);
 
 var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
@@ -8512,7 +8512,7 @@ exports.repeat = repeat;
 "use strict";
 
 
-var Caml_exceptions = __webpack_require__(22);
+var Caml_exceptions = __webpack_require__(23);
 
 var $$Error = Caml_exceptions.create("Js_exn.Error");
 
@@ -8582,13 +8582,13 @@ exports.raiseUriError            = raiseUriError;
 
 
 
-var _prodInvariant = __webpack_require__(15),
+var _prodInvariant = __webpack_require__(16),
     _assign = __webpack_require__(5);
 
 var ReactNoopUpdateQueue = __webpack_require__(42);
 
-var canDefineProperty = __webpack_require__(23);
-var emptyObject = __webpack_require__(13);
+var canDefineProperty = __webpack_require__(24);
+var emptyObject = __webpack_require__(14);
 var invariant = __webpack_require__(3);
 var lowPriorityWarning = __webpack_require__(29);
 
@@ -8902,13 +8902,13 @@ module.exports = getIteratorFn;
 
 
 
-var ReactCurrentOwner = __webpack_require__(24);
+var ReactCurrentOwner = __webpack_require__(25);
 var ReactComponentTreeHook = __webpack_require__(30);
-var ReactElement = __webpack_require__(12);
+var ReactElement = __webpack_require__(13);
 
 var checkReactTypeSpec = __webpack_require__(71);
 
-var canDefineProperty = __webpack_require__(23);
+var canDefineProperty = __webpack_require__(24);
 var getIteratorFn = __webpack_require__(44);
 var warning = __webpack_require__(4);
 var lowPriorityWarning = __webpack_require__(29);
@@ -9146,16 +9146,16 @@ module.exports = ReactElementValidator;
 "use strict";
 
 
-var $$Array                 = __webpack_require__(11);
-var Block                   = __webpack_require__(21);
+var $$Array                 = __webpack_require__(12);
+var Block                   = __webpack_require__(22);
 var Curry                   = __webpack_require__(2);
 var Random                  = __webpack_require__(83);
-var Caml_obj                = __webpack_require__(9);
+var Caml_obj                = __webpack_require__(10);
 var Caml_hash               = __webpack_require__(91);
 var Caml_array              = __webpack_require__(8);
 var Pervasives              = __webpack_require__(6);
 var CamlinternalLazy        = __webpack_require__(93);
-var Caml_missing_polyfill   = __webpack_require__(18);
+var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function hash(x) {
@@ -9946,7 +9946,7 @@ exports.seeded_hash_param = seeded_hash_param;
 "use strict";
 
 
-var Caml_string             = __webpack_require__(10);
+var Caml_string             = __webpack_require__(11);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function chr(n) {
@@ -10053,7 +10053,7 @@ exports.compare   = compare;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array    = __webpack_require__(11);
+var $$Array    = __webpack_require__(12);
 var Hashtbl    = __webpack_require__(46);
 var Pervasives = __webpack_require__(6);
 
@@ -10109,8 +10109,8 @@ exports.generateInitialBoard = generateInitialBoard;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var ReactDOMRe         = __webpack_require__(25);
-var ReasonReact        = __webpack_require__(14);
+var ReactDOMRe         = __webpack_require__(20);
+var ReasonReact        = __webpack_require__(9);
 var Page$ReactTemplate = __webpack_require__(64);
 
 ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, Page$ReactTemplate.make(/* array */[])), "index");
@@ -10181,7 +10181,7 @@ if (process.env.NODE_ENV === 'production') {
 /*
  Modernizr 3.0.0pre (Custom Build) | MIT
 */
-var aa=__webpack_require__(20),l=__webpack_require__(32),B=__webpack_require__(5),C=__webpack_require__(7),ba=__webpack_require__(33),da=__webpack_require__(34),ea=__webpack_require__(35),fa=__webpack_require__(36),ia=__webpack_require__(37),D=__webpack_require__(13);
+var aa=__webpack_require__(21),l=__webpack_require__(32),B=__webpack_require__(5),C=__webpack_require__(7),ba=__webpack_require__(33),da=__webpack_require__(34),ea=__webpack_require__(35),fa=__webpack_require__(36),ia=__webpack_require__(37),D=__webpack_require__(14);
 function E(a){for(var b=arguments.length-1,c="Minified React error #"+a+"; visit http://facebook.github.io/react/docs/error-decoder.html?invariant\x3d"+a,d=0;d<b;d++)c+="\x26args[]\x3d"+encodeURIComponent(arguments[d+1]);b=Error(c+" for the full message or use the non-minified dev environment for full errors and additional helpful warnings.");b.name="Invariant Violation";b.framesToPop=1;throw b;}aa?void 0:E("227");
 var oa={children:!0,dangerouslySetInnerHTML:!0,defaultValue:!0,defaultChecked:!0,innerHTML:!0,suppressContentEditableWarning:!0,suppressHydrationWarning:!0,style:!0};function pa(a,b){return(a&b)===b}
 var ta={MUST_USE_PROPERTY:1,HAS_BOOLEAN_VALUE:4,HAS_NUMERIC_VALUE:8,HAS_POSITIVE_NUMERIC_VALUE:24,HAS_OVERLOADED_BOOLEAN_VALUE:32,HAS_STRING_BOOLEAN_VALUE:64,injectDOMPropertyConfig:function(a){var b=ta,c=a.Properties||{},d=a.DOMAttributeNamespaces||{},e=a.DOMAttributeNames||{};a=a.DOMMutationMethods||{};for(var f in c){ua.hasOwnProperty(f)?E("48",f):void 0;var g=f.toLowerCase(),h=c[f];g={attributeName:g,attributeNamespace:null,propertyName:f,mutationMethod:null,mustUseProperty:pa(h,b.MUST_USE_PROPERTY),
@@ -10414,7 +10414,7 @@ Z.injectIntoDevTools({findFiberByHostInstance:pb,bundleType:0,version:"16.2.0",r
  * LICENSE file in the root directory of this source tree.
  */
 
-var m=__webpack_require__(5),n=__webpack_require__(13),p=__webpack_require__(7),q="function"===typeof Symbol&&Symbol["for"],r=q?Symbol["for"]("react.element"):60103,t=q?Symbol["for"]("react.call"):60104,u=q?Symbol["for"]("react.return"):60105,v=q?Symbol["for"]("react.portal"):60106,w=q?Symbol["for"]("react.fragment"):60107,x="function"===typeof Symbol&&Symbol.iterator;
+var m=__webpack_require__(5),n=__webpack_require__(14),p=__webpack_require__(7),q="function"===typeof Symbol&&Symbol["for"],r=q?Symbol["for"]("react.element"):60103,t=q?Symbol["for"]("react.call"):60104,u=q?Symbol["for"]("react.return"):60105,v=q?Symbol["for"]("react.portal"):60106,w=q?Symbol["for"]("react.fragment"):60107,x="function"===typeof Symbol&&Symbol.iterator;
 function y(a){for(var b=arguments.length-1,e="Minified React error #"+a+"; visit http://facebook.github.io/react/docs/error-decoder.html?invariant\x3d"+a,c=0;c<b;c++)e+="\x26args[]\x3d"+encodeURIComponent(arguments[c+1]);b=Error(e+" for the full message or use the non-minified dev environment for full errors and additional helpful warnings.");b.name="Invariant Violation";b.framesToPop=1;throw b;}
 var z={isMounted:function(){return!1},enqueueForceUpdate:function(){},enqueueReplaceState:function(){},enqueueSetState:function(){}};function A(a,b,e){this.props=a;this.context=b;this.refs=n;this.updater=e||z}A.prototype.isReactComponent={};A.prototype.setState=function(a,b){"object"!==typeof a&&"function"!==typeof a&&null!=a?y("85"):void 0;this.updater.enqueueSetState(this,a,b,"setState")};A.prototype.forceUpdate=function(a){this.updater.enqueueForceUpdate(this,a,"forceUpdate")};
 function B(a,b,e){this.props=a;this.context=b;this.refs=n;this.updater=e||z}function C(){}C.prototype=A.prototype;var D=B.prototype=new C;D.constructor=B;m(D,A.prototype);D.isPureReactComponent=!0;function E(a,b,e){this.props=a;this.context=b;this.refs=n;this.updater=e||z}var F=E.prototype=new C;F.constructor=E;m(F,A.prototype);F.unstable_isAsyncReactComponent=!0;F.render=function(){return this.props.children};var G={current:null},H=Object.prototype.hasOwnProperty,I={key:!0,ref:!0,__self:!0,__source:!0};
@@ -10451,7 +10451,7 @@ if (process.env.NODE_ENV !== "production") {
 'use strict';
 
 var _assign = __webpack_require__(5);
-var emptyObject = __webpack_require__(13);
+var emptyObject = __webpack_require__(14);
 var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
 var emptyFunction = __webpack_require__(7);
@@ -11871,7 +11871,7 @@ if (process.env.NODE_ENV !== "production") {
   (function() {
 'use strict';
 
-var React = __webpack_require__(20);
+var React = __webpack_require__(21);
 var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
 var ExecutionEnvironment = __webpack_require__(32);
@@ -11882,7 +11882,7 @@ var getActiveElement = __webpack_require__(34);
 var shallowEqual = __webpack_require__(35);
 var containsNode = __webpack_require__(36);
 var focusNode = __webpack_require__(37);
-var emptyObject = __webpack_require__(13);
+var emptyObject = __webpack_require__(14);
 var checkPropTypes = __webpack_require__(26);
 var hyphenateStyleName = __webpack_require__(57);
 var camelizeStyleName = __webpack_require__(59);
@@ -27552,7 +27552,7 @@ exports.caml_ml_out_channels_list   = caml_ml_out_channels_list;
 "use strict";
 
 
-var Block = __webpack_require__(21);
+var Block = __webpack_require__(22);
 
 function erase_rel(param) {
   if (typeof param === "number") {
@@ -27787,7 +27787,7 @@ exports.concat_fmt   = concat_fmt;
 "use strict";
 
 
-var React = __webpack_require__(20);
+var React = __webpack_require__(21);
 
 function _assign(prim, prim$1) {
   return Object.assign(prim, prim$1);
@@ -28691,14 +28691,14 @@ exports.createClass          = createClass;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                      = __webpack_require__(11);
-var Block                        = __webpack_require__(21);
+var $$Array                      = __webpack_require__(12);
+var Block                        = __webpack_require__(22);
 var Curry                        = __webpack_require__(2);
-var React                        = __webpack_require__(19);
+var React                        = __webpack_require__(15);
 var Js_exn                       = __webpack_require__(40);
 var Caml_array                   = __webpack_require__(8);
-var Caml_format                  = __webpack_require__(16);
-var ReasonReact                  = __webpack_require__(14);
+var Caml_format                  = __webpack_require__(17);
+var ReasonReact                  = __webpack_require__(9);
 var Board$ReactTemplate          = __webpack_require__(81);
 var Caml_builtin_exceptions      = __webpack_require__(1);
 var ProvidedValues$ReactTemplate = __webpack_require__(48);
@@ -28793,7 +28793,7 @@ var _assign = __webpack_require__(5);
 var ReactBaseClasses = __webpack_require__(41);
 var ReactChildren = __webpack_require__(66);
 var ReactDOMFactories = __webpack_require__(70);
-var ReactElement = __webpack_require__(12);
+var ReactElement = __webpack_require__(13);
 var ReactPropTypes = __webpack_require__(74);
 var ReactVersion = __webpack_require__(77);
 
@@ -28806,7 +28806,7 @@ var cloneElement = ReactElement.cloneElement;
 
 if (process.env.NODE_ENV !== 'production') {
   var lowPriorityWarning = __webpack_require__(29);
-  var canDefineProperty = __webpack_require__(23);
+  var canDefineProperty = __webpack_require__(24);
   var ReactElementValidator = __webpack_require__(45);
   var didWarnPropTypesDeprecated = false;
   createElement = ReactElementValidator.createElement;
@@ -28925,7 +28925,7 @@ module.exports = React;
 
 
 var PooledClass = __webpack_require__(67);
-var ReactElement = __webpack_require__(12);
+var ReactElement = __webpack_require__(13);
 
 var emptyFunction = __webpack_require__(7);
 var traverseAllChildren = __webpack_require__(68);
@@ -29119,7 +29119,7 @@ module.exports = ReactChildren;
 
 
 
-var _prodInvariant = __webpack_require__(15);
+var _prodInvariant = __webpack_require__(16);
 
 var invariant = __webpack_require__(3);
 
@@ -29234,9 +29234,9 @@ module.exports = PooledClass;
 
 
 
-var _prodInvariant = __webpack_require__(15);
+var _prodInvariant = __webpack_require__(16);
 
-var ReactCurrentOwner = __webpack_require__(24);
+var ReactCurrentOwner = __webpack_require__(25);
 var REACT_ELEMENT_TYPE = __webpack_require__(43);
 
 var getIteratorFn = __webpack_require__(44);
@@ -29476,7 +29476,7 @@ module.exports = KeyEscapeUtils;
 
 
 
-var ReactElement = __webpack_require__(12);
+var ReactElement = __webpack_require__(13);
 
 /**
  * Create a factory that creates HTML tag elements.
@@ -29649,7 +29649,7 @@ module.exports = ReactDOMFactories;
 
 
 
-var _prodInvariant = __webpack_require__(15);
+var _prodInvariant = __webpack_require__(16);
 
 var ReactPropTypeLocationNames = __webpack_require__(72);
 var ReactPropTypesSecret = __webpack_require__(73);
@@ -29789,7 +29789,7 @@ module.exports = ReactPropTypesSecret;
 
 
 
-var _require = __webpack_require__(12),
+var _require = __webpack_require__(13),
     isValidElement = _require.isValidElement;
 
 var factory = __webpack_require__(75);
@@ -30407,7 +30407,7 @@ module.exports = '15.6.2';
 var _require = __webpack_require__(41),
     Component = _require.Component;
 
-var _require2 = __webpack_require__(12),
+var _require2 = __webpack_require__(13),
     isValidElement = _require2.isValidElement;
 
 var ReactNoopUpdateQueue = __webpack_require__(42);
@@ -30432,7 +30432,7 @@ module.exports = factory(Component, isValidElement, ReactNoopUpdateQueue);
 
 var _assign = __webpack_require__(5);
 
-var emptyObject = __webpack_require__(13);
+var emptyObject = __webpack_require__(14);
 var _invariant = __webpack_require__(3);
 
 if (process.env.NODE_ENV !== 'production') {
@@ -31363,9 +31363,9 @@ module.exports = factory;
  */
 
 
-var _prodInvariant = __webpack_require__(15);
+var _prodInvariant = __webpack_require__(16);
 
-var ReactElement = __webpack_require__(12);
+var ReactElement = __webpack_require__(13);
 
 var invariant = __webpack_require__(3);
 
@@ -31399,12 +31399,13 @@ module.exports = onlyChild;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                    = __webpack_require__(11);
-var React                      = __webpack_require__(19);
+var $$Array                    = __webpack_require__(12);
+var React                      = __webpack_require__(15);
 var Pervasives                 = __webpack_require__(6);
-var ReasonReact                = __webpack_require__(14);
+var ReasonReact                = __webpack_require__(9);
 var Row$ReactTemplate          = __webpack_require__(82);
-var BoardHeading$ReactTemplate = __webpack_require__(97);
+var BoardFooter$ReactTemplate  = __webpack_require__(97);
+var BoardHeading$ReactTemplate = __webpack_require__(98);
 
 var component = ReasonReact.statelessComponent("Board");
 
@@ -31419,7 +31420,7 @@ function make(board, handleChange, _) {
                       style: style
                     }, $$Array.mapi((function (index, row) {
                             return ReasonReact.element(/* Some */[Pervasives.string_of_int(index)], /* None */0, Row$ReactTemplate.make(handleChange, index, row, /* array */[]));
-                          }), board)));
+                          }), board)), ReasonReact.element(/* None */0, /* None */0, BoardFooter$ReactTemplate.make(/* array */[])));
     });
   return newrecord;
 }
@@ -31438,11 +31439,11 @@ exports.make      = make;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                      = __webpack_require__(11);
-var React                        = __webpack_require__(19);
+var $$Array                      = __webpack_require__(12);
+var React                        = __webpack_require__(15);
 var Hashtbl                      = __webpack_require__(46);
 var Pervasives                   = __webpack_require__(6);
-var ReasonReact                  = __webpack_require__(14);
+var ReasonReact                  = __webpack_require__(9);
 var Box$ReactTemplate            = __webpack_require__(96);
 var ProvidedValues$ReactTemplate = __webpack_require__(48);
 
@@ -31480,7 +31481,7 @@ exports.make      = make;
 "use strict";
 
 
-var $$Array                 = __webpack_require__(11);
+var $$Array                 = __webpack_require__(12);
 var Curry                   = __webpack_require__(2);
 var Int32                   = __webpack_require__(84);
 var Int64                   = __webpack_require__(85);
@@ -31490,7 +31491,7 @@ var Nativeint               = __webpack_require__(90);
 var Caml_array              = __webpack_require__(8);
 var Caml_int64              = __webpack_require__(28);
 var Pervasives              = __webpack_require__(6);
-var Caml_string             = __webpack_require__(10);
+var Caml_string             = __webpack_require__(11);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function assign(st1, st2) {
@@ -31796,8 +31797,8 @@ exports.set_state = set_state;
 "use strict";
 
 
-var Caml_obj    = __webpack_require__(9);
-var Caml_format = __webpack_require__(16);
+var Caml_obj    = __webpack_require__(10);
+var Caml_format = __webpack_require__(17);
 
 function succ(n) {
   return n + 1 | 0;
@@ -31857,7 +31858,7 @@ exports.compare   = compare;
 
 
 var Caml_int64  = __webpack_require__(28);
-var Caml_format = __webpack_require__(16);
+var Caml_format = __webpack_require__(17);
 
 function succ(n) {
   return Caml_int64.add(n, /* int64 */[
@@ -31947,8 +31948,8 @@ var Char                    = __webpack_require__(47);
 var $$String                = __webpack_require__(87);
 var Caml_md5                = __webpack_require__(89);
 var Pervasives              = __webpack_require__(6);
-var Caml_string             = __webpack_require__(10);
-var Caml_missing_polyfill   = __webpack_require__(18);
+var Caml_string             = __webpack_require__(11);
+var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function string(str) {
@@ -32084,8 +32085,8 @@ exports.from_hex  = from_hex;
 
 var List        = __webpack_require__(27);
 var Bytes       = __webpack_require__(88);
-var Caml_int32  = __webpack_require__(17);
-var Caml_string = __webpack_require__(10);
+var Caml_int32  = __webpack_require__(18);
+var Caml_string = __webpack_require__(11);
 
 function make(n, c) {
   return Caml_string.bytes_to_string(Bytes.make(n, c));
@@ -32294,10 +32295,10 @@ exports.compare        = compare;
 var Char                    = __webpack_require__(47);
 var List                    = __webpack_require__(27);
 var Curry                   = __webpack_require__(2);
-var Caml_obj                = __webpack_require__(9);
-var Caml_int32              = __webpack_require__(17);
+var Caml_obj                = __webpack_require__(10);
+var Caml_int32              = __webpack_require__(18);
 var Pervasives              = __webpack_require__(6);
-var Caml_string             = __webpack_require__(10);
+var Caml_string             = __webpack_require__(11);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function make(n, c) {
@@ -32967,8 +32968,8 @@ exports.caml_md5_string = caml_md5_string;
 "use strict";
 
 
-var Caml_obj    = __webpack_require__(9);
-var Caml_format = __webpack_require__(16);
+var Caml_obj    = __webpack_require__(10);
+var Caml_format = __webpack_require__(17);
 
 function succ(n) {
   return n + 1;
@@ -33030,7 +33031,7 @@ exports.compare   = compare;
 "use strict";
 
 
-var Caml_int32              = __webpack_require__(17);
+var Caml_int32              = __webpack_require__(18);
 var Caml_queue              = __webpack_require__(92);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -33214,7 +33215,7 @@ exports.is_empty   = is_empty;
 
 var Obj             = __webpack_require__(94);
 var Curry           = __webpack_require__(2);
-var Caml_exceptions = __webpack_require__(22);
+var Caml_exceptions = __webpack_require__(23);
 
 var Undefined = Caml_exceptions.create("CamlinternalLazy.Undefined");
 
@@ -33287,7 +33288,7 @@ exports.force_val            = force_val;
 
 var Marshal                 = __webpack_require__(95);
 var Caml_array              = __webpack_require__(8);
-var Caml_missing_polyfill   = __webpack_require__(18);
+var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 var double_field = Caml_array.caml_array_get;
@@ -33438,8 +33439,8 @@ exports.unmarshal                          = unmarshal;
 "use strict";
 
 
-var Caml_string             = __webpack_require__(10);
-var Caml_missing_polyfill   = __webpack_require__(18);
+var Caml_string             = __webpack_require__(11);
+var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function to_buffer(buff, ofs, len, _, _$1) {
@@ -33521,10 +33522,10 @@ exports.total_size   = total_size;
 
 
 var Curry       = __webpack_require__(2);
-var React       = __webpack_require__(19);
+var React       = __webpack_require__(15);
 var Pervasives  = __webpack_require__(6);
-var ReactDOMRe  = __webpack_require__(25);
-var ReasonReact = __webpack_require__(14);
+var ReactDOMRe  = __webpack_require__(20);
+var ReasonReact = __webpack_require__(9);
 
 var component = ReasonReact.statelessComponent("Box");
 
@@ -33605,9 +33606,63 @@ exports.make           = make;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var React       = __webpack_require__(19);
-var ReactDOMRe  = __webpack_require__(25);
-var ReasonReact = __webpack_require__(14);
+var React       = __webpack_require__(15);
+var ReasonReact = __webpack_require__(9);
+
+var component = ReasonReact.statelessComponent("BoardFooter");
+
+var color = "#0055CC";
+
+var style = {
+  color: color,
+  fontFamily: "'Rubik', sans-serif",
+  fontSize: "16px",
+  fontWeight: "400",
+  margin: "8px 0",
+  textAlign: "center"
+};
+
+var linkStyle = {
+  color: color
+};
+
+function make() {
+  var newrecord = component.slice();
+  newrecord[/* render */9] = (function () {
+      return React.createElement("div", {
+                  style: style
+                }, "Created by ", React.createElement("a", {
+                      style: linkStyle,
+                      href: "https://github.com/skovy",
+                      target: "_blank"
+                    }, "Skovy"), " on ", React.createElement("a", {
+                      style: linkStyle,
+                      href: "https://github.com/skovy/sudoku-reasonml",
+                      target: "_blank"
+                    }, "GitHub"), ".");
+    });
+  return newrecord;
+}
+
+exports.component = component;
+exports.color     = color;
+exports.style     = style;
+exports.linkStyle = linkStyle;
+exports.make      = make;
+/* component Not a pure module */
+
+
+/***/ }),
+/* 98 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
+
+
+var React       = __webpack_require__(15);
+var ReactDOMRe  = __webpack_require__(20);
+var ReasonReact = __webpack_require__(9);
 
 var component = ReasonReact.statelessComponent("BoardHeading");
 

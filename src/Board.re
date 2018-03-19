@@ -19,5 +19,6 @@ let make = (~board: ProvidedValues.board, ~handleChange, _children) => {
           )
         )
       </div>
+      <BoardFooter />
     </div>
 };
