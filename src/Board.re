@@ -4,7 +4,7 @@ let style =  ReactDOMRe.Style.make(
   ~border="4px solid #292F36", ());
 
 /* The entire sudoku board of 9 rows and 9 columns */
-let make = (~board: ProvidedValues.board, ~handleChange, _children) => {
+let make = (~board: StartingBoards.board, ~handleChange, _children) => {
   ...component,
   render: _self =>
     <div>

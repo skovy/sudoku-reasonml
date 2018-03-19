@@ -6,12 +6,13 @@ var Block                        = require("bs-platform/lib/js/block.js");
 var Curry                        = require("bs-platform/lib/js/curry.js");
 var React                        = require("react");
 var Js_exn                       = require("bs-platform/lib/js/js_exn.js");
+var Hashtbl                      = require("bs-platform/lib/js/hashtbl.js");
 var Caml_array                   = require("bs-platform/lib/js/caml_array.js");
 var Caml_format                  = require("bs-platform/lib/js/caml_format.js");
 var ReasonReact                  = require("reason-react/src/ReasonReact.js");
 var Board$ReactTemplate          = require("./Board.bs.js");
 var Caml_builtin_exceptions      = require("bs-platform/lib/js/caml_builtin_exceptions.js");
-var ProvidedValues$ReactTemplate = require("./ProvidedValues.bs.js");
+var StartingBoards$ReactTemplate = require("./StartingBoards.bs.js");
 
 var component = ReasonReact.reducerComponent("Page");
 
@@ -37,7 +38,7 @@ function make() {
                 }, ReasonReact.element(/* None */0, /* None */0, Board$ReactTemplate.make(self[/* state */2][/* board */0], handleChange, /* array */[])));
     });
   newrecord[/* initialState */10] = (function () {
-      return /* record */[/* board */ProvidedValues$ReactTemplate.generateInitialBoard(ProvidedValues$ReactTemplate.one)];
+      return /* record */[/* board */StartingBoards$ReactTemplate.generateInitialBoard(Hashtbl.find(StartingBoards$ReactTemplate.boards, "(1) Easy"))];
     });
   newrecord[/* reducer */12] = (function (action, state) {
       var column = action[2];

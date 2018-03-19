@@ -21,7 +21,7 @@ let make = (~handleChange, ~index: int, ~row: array(int), _children) => {
                 value=column
                 provided=(
                   Hashtbl.mem(
-                    ProvidedValues.one,
+                    Hashtbl.find(StartingBoards.boards, "(1) Easy"),
                     string_of_int(index) ++ "-" ++ string_of_int(j)
                   )
                 )

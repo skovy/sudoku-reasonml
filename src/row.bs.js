@@ -7,7 +7,7 @@ var Hashtbl                      = require("bs-platform/lib/js/hashtbl.js");
 var Pervasives                   = require("bs-platform/lib/js/pervasives.js");
 var ReasonReact                  = require("reason-react/src/ReasonReact.js");
 var Box$ReactTemplate            = require("./Box.bs.js");
-var ProvidedValues$ReactTemplate = require("./ProvidedValues.bs.js");
+var StartingBoards$ReactTemplate = require("./StartingBoards.bs.js");
 
 var component = ReasonReact.statelessComponent("Row");
 
@@ -24,7 +24,7 @@ function make(handleChange, index, row, _) {
                   className: "row",
                   style: style
                 }, $$Array.mapi((function (j, column) {
-                        return ReasonReact.element(/* Some */[Pervasives.string_of_int(j)], /* None */0, Box$ReactTemplate.make(column, /* Some */[Hashtbl.mem(ProvidedValues$ReactTemplate.one, Pervasives.string_of_int(index) + ("-" + Pervasives.string_of_int(j)))], handleChange, index, j, /* array */[]));
+                        return ReasonReact.element(/* Some */[Pervasives.string_of_int(j)], /* None */0, Box$ReactTemplate.make(column, /* Some */[Hashtbl.mem(Hashtbl.find(StartingBoards$ReactTemplate.boards, "(1) Easy"), Pervasives.string_of_int(index) + ("-" + Pervasives.string_of_int(j)))], handleChange, index, j, /* array */[]));
                       }), row));
     });
   return newrecord;
