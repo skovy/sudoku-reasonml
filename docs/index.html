@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css?family=Rubik:400,900" rel="stylesheet">
+  <title>Sudoku</title>
+  <style>
+    html,
+    body,
+    #index {
+      height: 100%;
+      background-color: #f0f0f0;
+    }
+
+    /* Add the vertical lines every 3 boxes */
+    .box:nth-child(3n) {
+      border-right: 4px solid #292F36;
+    }
+
+    /* Add the horizontal lines every 3 boxes */
+    .row:nth-child(3n) {
+      border-bottom: 4px solid #292F36;
+    }
+
+    .box:last-child,
+    .row:last-child {
+      border: 0;
+    }
+
+    /* TODO: move to component using React state for focus */
+    input:focus {
+      outline: none;
+      background: #E6F0FF !important;
+      box-shadow: inset 0 0 6px #0055CC !important;
+      transition: all 150ms ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="index"></div>
+  <script src="./index.js"></script>
+</body>
+</html>
