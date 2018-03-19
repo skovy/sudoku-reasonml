@@ -1,10 +1,15 @@
 let component = ReasonReact.statelessComponent("Board");
 
-let style =  ReactDOMRe.Style.make(
-  ~border="4px solid #292F36", ());
+let style = ReactDOMRe.Style.make(~border="4px solid #292F36", ());
 
 /* The entire sudoku board of 9 rows and 9 columns */
-let make = (~board: StartingBoards.board, ~handleChange, _children) => {
+let make =
+    (
+      ~board: StartingBoards.board,
+      ~startingBoard: StartingBoards.providedValues,
+      ~handleChange,
+      _children
+    ) => {
   ...component,
   render: _self =>
     <div>
@@ -13,7 +18,14 @@ let make = (~board: StartingBoards.board, ~handleChange, _children) => {
         (
           ReasonReact.arrayToElement(
             Array.mapi(
-              (index, row) => <Row key=(string_of_int(index)) handleChange index row />,
+              (index, row) =>
+                <Row
+                  key=(string_of_int(index))
+                  handleChange
+                  index
+                  row
+                  startingBoard
+                />,
               board
             )
           )

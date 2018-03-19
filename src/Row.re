@@ -9,7 +9,14 @@ let style =
   );
 
 /* A single row of the sudoku board containing 9 boxes */
-let make = (~handleChange, ~index: int, ~row: array(int), _children) => {
+let make =
+    (
+      ~handleChange,
+      ~index: int,
+      ~row: array(int),
+      ~startingBoard: StartingBoards.providedValues,
+      _children
+    ) => {
   ...component,
   render: _self =>
     <div style className="row">
@@ -21,7 +28,7 @@ let make = (~handleChange, ~index: int, ~row: array(int), _children) => {
                 value=column
                 provided=(
                   Hashtbl.mem(
-                    Hashtbl.find(StartingBoards.boards, "(1) Easy"),
+                    startingBoard,
                     string_of_int(index) ++ "-" ++ string_of_int(j)
                   )
                 )

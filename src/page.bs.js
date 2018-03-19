@@ -35,10 +35,13 @@ function make() {
       };
       return React.createElement("div", {
                   style: style
-                }, ReasonReact.element(/* None */0, /* None */0, Board$ReactTemplate.make(self[/* state */2][/* board */0], handleChange, /* array */[])));
+                }, ReasonReact.element(/* None */0, /* None */0, Board$ReactTemplate.make(self[/* state */2][/* board */0], self[/* state */2][/* startingBoard */1], handleChange, /* array */[])));
     });
   newrecord[/* initialState */10] = (function () {
-      return /* record */[/* board */StartingBoards$ReactTemplate.generateInitialBoard(Hashtbl.find(StartingBoards$ReactTemplate.boards, "(1) Easy"))];
+      return /* record */[
+              /* board */StartingBoards$ReactTemplate.generateInitialBoard(Hashtbl.find(StartingBoards$ReactTemplate.boards, "Intermediate")),
+              /* startingBoard */Hashtbl.find(StartingBoards$ReactTemplate.boards, "Intermediate")
+            ];
     });
   newrecord[/* reducer */12] = (function (action, state) {
       var column = action[2];
@@ -57,7 +60,10 @@ function make() {
         if (exn[0] === Caml_builtin_exceptions.failure) {
           if (exn[1] === "int_of_string") {
             Caml_array.caml_array_set(newRow, column, 0);
-            return /* Update */Block.__(0, [/* record */[/* board */newBoard]]);
+            return /* Update */Block.__(0, [/* record */[
+                        /* board */newBoard,
+                        /* startingBoard */state[/* startingBoard */1]
+                      ]]);
           } else {
             throw exn;
           }
@@ -70,7 +76,10 @@ function make() {
           return /* NoUpdate */0;
         } else {
           Caml_array.caml_array_set(newRow, column, intValue);
-          return /* Update */Block.__(0, [/* record */[/* board */newBoard]]);
+          return /* Update */Block.__(0, [/* record */[
+                      /* board */newBoard,
+                      /* startingBoard */state[/* startingBoard */1]
+                    ]]);
         }
       }
       

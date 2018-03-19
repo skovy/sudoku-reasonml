@@ -15,13 +15,13 @@ var style = {
   border: "4px solid #292F36"
 };
 
-function make(board, handleChange, _) {
+function make(board, startingBoard, handleChange, _) {
   var newrecord = component.slice();
   newrecord[/* render */9] = (function () {
       return React.createElement("div", undefined, ReasonReact.element(/* None */0, /* None */0, BoardHeading$ReactTemplate.make(/* array */[])), React.createElement("div", {
                       style: style
                     }, $$Array.mapi((function (index, row) {
-                            return ReasonReact.element(/* Some */[Pervasives.string_of_int(index)], /* None */0, Row$ReactTemplate.make(handleChange, index, row, /* array */[]));
+                            return ReasonReact.element(/* Some */[Pervasives.string_of_int(index)], /* None */0, Row$ReactTemplate.make(handleChange, index, row, startingBoard, /* array */[]));
                           }), board)), ReasonReact.element(/* None */0, /* None */0, BoardFooter$ReactTemplate.make(/* array */[])));
     });
   return newrecord;

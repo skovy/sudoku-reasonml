@@ -1,7 +1,10 @@
 type action =
   | Change(string, int, int);
 
-type state = {board: StartingBoards.board};
+type state = {
+  board: StartingBoards.board,
+  startingBoard: StartingBoards.providedValues
+};
 
 let component = ReasonReact.reducerComponent("Page");
 
@@ -17,9 +20,10 @@ let style =
 let make = _children => {
   ...component,
   initialState: () => {
+    startingBoard: Hashtbl.find(StartingBoards.boards, "Intermediate"),
     board:
       StartingBoards.generateInitialBoard(
-        Hashtbl.find(StartingBoards.boards, "(1) Easy")
+        Hashtbl.find(StartingBoards.boards, "Intermediate")
       )
   },
   reducer: (action, state) =>
@@ -31,19 +35,25 @@ let make = _children => {
       switch (int_of_string(value)) {
       | exception (Failure("int_of_string")) =>
         newRow[column] = 0;
-        ReasonReact.Update({board: newBoard});
+        ReasonReact.Update({...state, board: newBoard});
       | intValue =>
         if (intValue < 1 || intValue > 9) {
           ReasonReact.NoUpdate;
         } else {
           newRow[column] = intValue;
-          ReasonReact.Update({board: newBoard});
+          ReasonReact.Update({...state, board: newBoard});
         }
       };
     },
   render: self => {
     let handleChange = (value: string, row: int, column: int) =>
       self.send(Change(value, row, column));
-    <div style> <Board handleChange board=self.state.board /> </div>;
+    <div style>
+      <Board
+        handleChange
+        board=self.state.board
+        startingBoard=self.state.startingBoard
+      />
+    </div>;
   }
 };

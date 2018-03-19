@@ -1,15 +1,18 @@
 type board = array(array(int));
+type providedValues = Hashtbl.t (string, int);
+type boards = Hashtbl.t (string,  providedValues);
 
-let boards = {
+let boards: boards = {
   let values = Hashtbl.create(1);
 
-  Hashtbl.add(values, "(1) Easy", Easy.one);
+  Hashtbl.add(values, "Easy", Easy.one);
+  Hashtbl.add(values, "Intermediate", Intermediate.one);
 
   values
 };
 
 /* Generate a 9x9 board with empty spaces */
-let generateInitialBoard = (startingBoard: Hashtbl.t (string, int)) => {
+let generateInitialBoard = (startingBoard: providedValues) => {
   let board = ref([||]);
   for (i in 0 to 8) {
     let row = ref([||]);
