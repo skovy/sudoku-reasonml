@@ -28663,62 +28663,73 @@ function make() {
   var newrecord = component.slice();
   newrecord[/* render */9] = (function (self) {
       var handleChange = function (value, row, column) {
-        return Curry._1(self[/* send */4], /* Change */[
-                    value,
-                    row,
-                    column
-                  ]);
+        return Curry._1(self[/* send */4], /* Change */Block.__(0, [
+                      value,
+                      row,
+                      column
+                    ]));
+      };
+      var handleSwitchBoard = function (board) {
+        return Curry._1(self[/* send */4], /* SwitchBoard */Block.__(1, [board]));
       };
       return React.createElement("div", {
                   style: style
-                }, React.createElement("div", undefined, ReasonReact.element(/* None */0, /* None */0, BoardHeading$ReactTemplate.make(/* array */[])), ReasonReact.element(/* None */0, /* None */0, Board$ReactTemplate.make(self[/* state */2][/* board */0], self[/* state */2][/* startingBoard */1], handleChange, /* array */[])), ReasonReact.element(/* None */0, /* None */0, BoardFooter$ReactTemplate.make(/* array */[]))));
+                }, React.createElement("div", undefined, ReasonReact.element(/* None */0, /* None */0, BoardHeading$ReactTemplate.make(handleSwitchBoard, /* array */[])), ReasonReact.element(/* None */0, /* None */0, Board$ReactTemplate.make(self[/* state */2][/* board */0], self[/* state */2][/* startingBoard */1], handleChange, /* array */[])), ReasonReact.element(/* None */0, /* None */0, BoardFooter$ReactTemplate.make(/* array */[]))));
     });
   newrecord[/* initialState */10] = (function () {
       return /* record */[
-              /* board */StartingBoards$ReactTemplate.generateInitialBoard(Hashtbl.find(StartingBoards$ReactTemplate.boards, "Intermediate")),
-              /* startingBoard */Hashtbl.find(StartingBoards$ReactTemplate.boards, "Intermediate")
+              /* board */StartingBoards$ReactTemplate.generateInitialBoard(Hashtbl.find(StartingBoards$ReactTemplate.boards, "Easy")),
+              /* startingBoard */Hashtbl.find(StartingBoards$ReactTemplate.boards, "Easy")
             ];
     });
   newrecord[/* reducer */12] = (function (action, state) {
-      var column = action[2];
-      var row = action[1];
-      var newBoard = $$Array.copy(state[/* board */0]);
-      var newRow = $$Array.copy(Caml_array.caml_array_get(newBoard, row));
-      Caml_array.caml_array_set(newBoard, row, newRow);
-      var exit = 0;
-      var intValue;
-      try {
-        intValue = Caml_format.caml_int_of_string(action[0]);
-        exit = 1;
-      }
-      catch (raw_exn){
-        var exn = Js_exn.internalToOCamlException(raw_exn);
-        if (exn[0] === Caml_builtin_exceptions.failure) {
-          if (exn[1] === "int_of_string") {
-            Caml_array.caml_array_set(newRow, column, 0);
+      if (action.tag) {
+        var board = Hashtbl.find(StartingBoards$ReactTemplate.boards, action[0]);
+        return /* Update */Block.__(0, [/* record */[
+                    /* board */StartingBoards$ReactTemplate.generateInitialBoard(board),
+                    /* startingBoard */board
+                  ]]);
+      } else {
+        var column = action[2];
+        var row = action[1];
+        var newBoard = $$Array.copy(state[/* board */0]);
+        var newRow = $$Array.copy(Caml_array.caml_array_get(newBoard, row));
+        Caml_array.caml_array_set(newBoard, row, newRow);
+        var exit = 0;
+        var intValue;
+        try {
+          intValue = Caml_format.caml_int_of_string(action[0]);
+          exit = 1;
+        }
+        catch (raw_exn){
+          var exn = Js_exn.internalToOCamlException(raw_exn);
+          if (exn[0] === Caml_builtin_exceptions.failure) {
+            if (exn[1] === "int_of_string") {
+              Caml_array.caml_array_set(newRow, column, 0);
+              return /* Update */Block.__(0, [/* record */[
+                          /* board */newBoard,
+                          /* startingBoard */state[/* startingBoard */1]
+                        ]]);
+            } else {
+              throw exn;
+            }
+          } else {
+            throw exn;
+          }
+        }
+        if (exit === 1) {
+          if (intValue < 1 || intValue > 9) {
+            return /* NoUpdate */0;
+          } else {
+            Caml_array.caml_array_set(newRow, column, intValue);
             return /* Update */Block.__(0, [/* record */[
                         /* board */newBoard,
                         /* startingBoard */state[/* startingBoard */1]
                       ]]);
-          } else {
-            throw exn;
           }
-        } else {
-          throw exn;
         }
+        
       }
-      if (exit === 1) {
-        if (intValue < 1 || intValue > 9) {
-          return /* NoUpdate */0;
-        } else {
-          Caml_array.caml_array_set(newRow, column, intValue);
-          return /* Update */Block.__(0, [/* record */[
-                      /* board */newBoard,
-                      /* startingBoard */state[/* startingBoard */1]
-                    ]]);
-        }
-      }
-      
     });
   return newrecord;
 }
@@ -33616,15 +33627,28 @@ exports.make      = make;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var React       = __webpack_require__(15);
-var ReactDOMRe  = __webpack_require__(26);
-var ReasonReact = __webpack_require__(9);
+var $$Array                      = __webpack_require__(12);
+var Curry                        = __webpack_require__(2);
+var React                        = __webpack_require__(15);
+var ReactDOMRe                   = __webpack_require__(26);
+var ReasonReact                  = __webpack_require__(9);
+var StartingBoards$ReactTemplate = __webpack_require__(98);
 
 var component = ReasonReact.statelessComponent("BoardHeading");
 
 var color = "#0055CC";
 
 var style = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between"
+};
+
+var selectStyle = {
+  fontSize: "16px"
+};
+
+var headingStyle = {
   color: color,
   fontFamily: "'Rubik', sans-serif",
   fontSize: "48px",
@@ -33632,27 +33656,42 @@ var style = {
   margin: "0"
 };
 
-var smallStyle = ReactDOMRe.Style[/* combine */0](style, {
+var smallStyle = ReactDOMRe.Style[/* combine */0](headingStyle, {
       fontWeight: "400"
     });
 
-function make() {
+function make(handleSwitchBoard, _) {
   var newrecord = component.slice();
   newrecord[/* render */9] = (function () {
-      return React.createElement("h1", {
+      var onChange = function ($$event) {
+        return Curry._1(handleSwitchBoard, $$event.target.value);
+      };
+      return React.createElement("div", {
                   style: style
-                }, "Sudoku", React.createElement("small", {
-                      style: smallStyle
-                    }, "ReasonML"));
+                }, React.createElement("h1", {
+                      style: headingStyle
+                    }, "Sudoku", React.createElement("small", {
+                          style: smallStyle
+                        }, "ReasonML")), React.createElement("select", {
+                      style: selectStyle,
+                      onChange: onChange
+                    }, $$Array.map((function (boardName) {
+                            return React.createElement("option", {
+                                        key: boardName,
+                                        value: boardName
+                                      }, boardName);
+                          }), StartingBoards$ReactTemplate.boardNames)));
     });
   return newrecord;
 }
 
-exports.component  = component;
-exports.color      = color;
-exports.style      = style;
-exports.smallStyle = smallStyle;
-exports.make       = make;
+exports.component    = component;
+exports.color        = color;
+exports.style        = style;
+exports.selectStyle  = selectStyle;
+exports.headingStyle = headingStyle;
+exports.smallStyle   = smallStyle;
+exports.make         = make;
 /* component Not a pure module */
 
 
