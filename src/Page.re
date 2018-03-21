@@ -49,11 +49,15 @@ let make = _children => {
     let handleChange = (value: string, row: int, column: int) =>
       self.send(Change(value, row, column));
     <div style>
-      <Board
-        handleChange
-        board=self.state.board
-        startingBoard=self.state.startingBoard
-      />
+      <div>
+        <BoardHeading />
+        <Board
+          handleChange
+          board=self.state.board
+          startingBoard=self.state.startingBoard
+        />
+        <BoardFooter />
+      </div>
     </div>;
   }
 };

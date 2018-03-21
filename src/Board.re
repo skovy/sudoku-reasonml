@@ -17,25 +17,21 @@ let make =
     ) => {
   ...component,
   render: _self =>
-    <div>
-      <BoardHeading />
-      <div style>
-        (
-          ReasonReact.arrayToElement(
-            Array.mapi(
-              (index, row) =>
-                <Row
-                  key=(string_of_int(index))
-                  handleChange
-                  index
-                  row
-                  startingBoard
-                />,
-              board
-            )
+    <div style>
+      (
+        ReasonReact.arrayToElement(
+          Array.mapi(
+            (index, row) =>
+              <Row
+                key=(string_of_int(index))
+                handleChange
+                index
+                row
+                startingBoard
+              />,
+            board
           )
         )
-      </div>
-      <BoardFooter />
+      )
     </div>
 };

@@ -1,14 +1,24 @@
 type board = array(array(int));
-type providedValues = Hashtbl.t (string, int);
-type boards = Hashtbl.t (string,  providedValues);
 
+type providedValues = Hashtbl.t(string, int);
+
+type boards = Hashtbl.t(string, providedValues);
+
+/* A hash of all possible sudoku boards to solve */
 let boards: boards = {
   let values = Hashtbl.create(1);
-
   Hashtbl.add(values, "Easy", Easy.one);
   Hashtbl.add(values, "Intermediate", Intermediate.one);
+  values;
+};
 
-  values
+/* An array of all possible board names */
+let boardNames: array(string) = {
+  let values = ref([||]);
+  let addBoardName = (key: string, _) =>
+    values := Array.append(values^, [|key|]);
+  Hashtbl.iter(addBoardName, boards);
+  values^;
 };
 
 /* Generate a 9x9 board with empty spaces */
