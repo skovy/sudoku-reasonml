@@ -12,6 +12,7 @@ let make =
     (
       ~board: StartingBoards.board,
       ~startingBoard: StartingBoards.providedValues,
+      ~status,
       ~handleChange,
       _children
     ) => {
@@ -28,6 +29,7 @@ let make =
                 index
                 row
                 startingBoard
+                status
               />,
             board
           )

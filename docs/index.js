@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 48);
+/******/ 	return __webpack_require__(__webpack_require__.s = 49);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -367,7 +367,7 @@ exports.undefined_recursive_module = undefined_recursive_module;
 "use strict";
 
 
-var Caml_array = __webpack_require__(8);
+var Caml_array = __webpack_require__(9);
 
 function app(_f, _args) {
   while(true) {
@@ -1236,15 +1236,15 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 var Curry                    = __webpack_require__(2);
-var Caml_io                  = __webpack_require__(60);
-var Caml_obj                 = __webpack_require__(10);
+var Caml_io                  = __webpack_require__(61);
+var Caml_obj                 = __webpack_require__(11);
 var Caml_sys                 = __webpack_require__(39);
 var Caml_format              = __webpack_require__(17);
-var Caml_string              = __webpack_require__(11);
+var Caml_string              = __webpack_require__(12);
 var Caml_exceptions          = __webpack_require__(23);
 var Caml_missing_polyfill    = __webpack_require__(19);
 var Caml_builtin_exceptions  = __webpack_require__(1);
-var CamlinternalFormatBasics = __webpack_require__(61);
+var CamlinternalFormatBasics = __webpack_require__(62);
 
 function failwith(s) {
   throw [
@@ -1978,6 +1978,445 @@ module.exports = emptyFunction;
 "use strict";
 
 
+var Curry                   = __webpack_require__(2);
+var Js_exn                  = __webpack_require__(41);
+var Caml_array              = __webpack_require__(9);
+var Caml_exceptions         = __webpack_require__(23);
+var Caml_builtin_exceptions = __webpack_require__(1);
+
+function init(l, f) {
+  if (l) {
+    if (l < 0) {
+      throw [
+            Caml_builtin_exceptions.invalid_argument,
+            "Array.init"
+          ];
+    } else {
+      var res = Caml_array.caml_make_vect(l, Curry._1(f, 0));
+      for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+        res[i] = Curry._1(f, i);
+      }
+      return res;
+    }
+  } else {
+    return /* array */[];
+  }
+}
+
+function make_matrix(sx, sy, init) {
+  var res = Caml_array.caml_make_vect(sx, /* array */[]);
+  for(var x = 0 ,x_finish = sx - 1 | 0; x <= x_finish; ++x){
+    res[x] = Caml_array.caml_make_vect(sy, init);
+  }
+  return res;
+}
+
+function copy(a) {
+  var l = a.length;
+  if (l) {
+    return Caml_array.caml_array_sub(a, 0, l);
+  } else {
+    return /* array */[];
+  }
+}
+
+function append(a1, a2) {
+  var l1 = a1.length;
+  if (l1) {
+    if (a2.length) {
+      return a1.concat(a2);
+    } else {
+      return Caml_array.caml_array_sub(a1, 0, l1);
+    }
+  } else {
+    return copy(a2);
+  }
+}
+
+function sub(a, ofs, len) {
+  if (len < 0 || ofs > (a.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.sub"
+        ];
+  } else {
+    return Caml_array.caml_array_sub(a, ofs, len);
+  }
+}
+
+function fill(a, ofs, len, v) {
+  if (ofs < 0 || len < 0 || ofs > (a.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.fill"
+        ];
+  } else {
+    for(var i = ofs ,i_finish = (ofs + len | 0) - 1 | 0; i <= i_finish; ++i){
+      a[i] = v;
+    }
+    return /* () */0;
+  }
+}
+
+function blit(a1, ofs1, a2, ofs2, len) {
+  if (len < 0 || ofs1 < 0 || ofs1 > (a1.length - len | 0) || ofs2 < 0 || ofs2 > (a2.length - len | 0)) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "Array.blit"
+        ];
+  } else {
+    return Caml_array.caml_array_blit(a1, ofs1, a2, ofs2, len);
+  }
+}
+
+function iter(f, a) {
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    Curry._1(f, a[i]);
+  }
+  return /* () */0;
+}
+
+function map(f, a) {
+  var l = a.length;
+  if (l) {
+    var r = Caml_array.caml_make_vect(l, Curry._1(f, a[0]));
+    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+      r[i] = Curry._1(f, a[i]);
+    }
+    return r;
+  } else {
+    return /* array */[];
+  }
+}
+
+function iteri(f, a) {
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    Curry._2(f, i, a[i]);
+  }
+  return /* () */0;
+}
+
+function mapi(f, a) {
+  var l = a.length;
+  if (l) {
+    var r = Caml_array.caml_make_vect(l, Curry._2(f, 0, a[0]));
+    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
+      r[i] = Curry._2(f, i, a[i]);
+    }
+    return r;
+  } else {
+    return /* array */[];
+  }
+}
+
+function to_list(a) {
+  var _i = a.length - 1 | 0;
+  var _res = /* [] */0;
+  while(true) {
+    var res = _res;
+    var i = _i;
+    if (i < 0) {
+      return res;
+    } else {
+      _res = /* :: */[
+        a[i],
+        res
+      ];
+      _i = i - 1 | 0;
+      continue ;
+      
+    }
+  };
+}
+
+function list_length(_accu, _param) {
+  while(true) {
+    var param = _param;
+    var accu = _accu;
+    if (param) {
+      _param = param[1];
+      _accu = accu + 1 | 0;
+      continue ;
+      
+    } else {
+      return accu;
+    }
+  };
+}
+
+function of_list(l) {
+  if (l) {
+    var a = Caml_array.caml_make_vect(list_length(0, l), l[0]);
+    var _i = 1;
+    var _param = l[1];
+    while(true) {
+      var param = _param;
+      var i = _i;
+      if (param) {
+        a[i] = param[0];
+        _param = param[1];
+        _i = i + 1 | 0;
+        continue ;
+        
+      } else {
+        return a;
+      }
+    };
+  } else {
+    return /* array */[];
+  }
+}
+
+function fold_left(f, x, a) {
+  var r = x;
+  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
+    r = Curry._2(f, r, a[i]);
+  }
+  return r;
+}
+
+function fold_right(f, a, x) {
+  var r = x;
+  for(var i = a.length - 1 | 0; i >= 0; --i){
+    r = Curry._2(f, a[i], r);
+  }
+  return r;
+}
+
+var Bottom = Caml_exceptions.create("Array.Bottom");
+
+function sort(cmp, a) {
+  var maxson = function (l, i) {
+    var i31 = ((i + i | 0) + i | 0) + 1 | 0;
+    var x = i31;
+    if ((i31 + 2 | 0) < l) {
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
+        x = i31 + 1 | 0;
+      }
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, x), Caml_array.caml_array_get(a, i31 + 2 | 0)) < 0) {
+        x = i31 + 2 | 0;
+      }
+      return x;
+    } else if ((i31 + 1 | 0) < l && Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
+      return i31 + 1 | 0;
+    } else if (i31 < l) {
+      return i31;
+    } else {
+      throw [
+            Bottom,
+            i
+          ];
+    }
+  };
+  var trickle = function (l, i, e) {
+    try {
+      var l$1 = l;
+      var _i = i;
+      var e$1 = e;
+      while(true) {
+        var i$1 = _i;
+        var j = maxson(l$1, i$1);
+        if (Curry._2(cmp, Caml_array.caml_array_get(a, j), e$1) > 0) {
+          Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
+          _i = j;
+          continue ;
+          
+        } else {
+          return Caml_array.caml_array_set(a, i$1, e$1);
+        }
+      };
+    }
+    catch (raw_exn){
+      var exn = Js_exn.internalToOCamlException(raw_exn);
+      if (exn[0] === Bottom) {
+        return Caml_array.caml_array_set(a, exn[1], e);
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var bubble = function (l, i) {
+    try {
+      var l$1 = l;
+      var _i = i;
+      while(true) {
+        var i$1 = _i;
+        var j = maxson(l$1, i$1);
+        Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
+        _i = j;
+        continue ;
+        
+      };
+    }
+    catch (raw_exn){
+      var exn = Js_exn.internalToOCamlException(raw_exn);
+      if (exn[0] === Bottom) {
+        return exn[1];
+      } else {
+        throw exn;
+      }
+    }
+  };
+  var trickleup = function (_i, e) {
+    while(true) {
+      var i = _i;
+      var father = (i - 1 | 0) / 3 | 0;
+      if (i === father) {
+        throw [
+              Caml_builtin_exceptions.assert_failure,
+              [
+                "array.ml",
+                168,
+                4
+              ]
+            ];
+      }
+      if (Curry._2(cmp, Caml_array.caml_array_get(a, father), e) < 0) {
+        Caml_array.caml_array_set(a, i, Caml_array.caml_array_get(a, father));
+        if (father > 0) {
+          _i = father;
+          continue ;
+          
+        } else {
+          return Caml_array.caml_array_set(a, 0, e);
+        }
+      } else {
+        return Caml_array.caml_array_set(a, i, e);
+      }
+    };
+  };
+  var l = a.length;
+  for(var i = ((l + 1 | 0) / 3 | 0) - 1 | 0; i >= 0; --i){
+    trickle(l, i, Caml_array.caml_array_get(a, i));
+  }
+  for(var i$1 = l - 1 | 0; i$1 >= 2; --i$1){
+    var e = Caml_array.caml_array_get(a, i$1);
+    Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, 0));
+    trickleup(bubble(i$1, 0), e);
+  }
+  if (l > 1) {
+    var e$1 = Caml_array.caml_array_get(a, 1);
+    Caml_array.caml_array_set(a, 1, Caml_array.caml_array_get(a, 0));
+    return Caml_array.caml_array_set(a, 0, e$1);
+  } else {
+    return 0;
+  }
+}
+
+function stable_sort(cmp, a) {
+  var merge = function (src1ofs, src1len, src2, src2ofs, src2len, dst, dstofs) {
+    var src1r = src1ofs + src1len | 0;
+    var src2r = src2ofs + src2len | 0;
+    var _i1 = src1ofs;
+    var _s1 = Caml_array.caml_array_get(a, src1ofs);
+    var _i2 = src2ofs;
+    var _s2 = Caml_array.caml_array_get(src2, src2ofs);
+    var _d = dstofs;
+    while(true) {
+      var d = _d;
+      var s2 = _s2;
+      var i2 = _i2;
+      var s1 = _s1;
+      var i1 = _i1;
+      if (Curry._2(cmp, s1, s2) <= 0) {
+        Caml_array.caml_array_set(dst, d, s1);
+        var i1$1 = i1 + 1 | 0;
+        if (i1$1 < src1r) {
+          _d = d + 1 | 0;
+          _s1 = Caml_array.caml_array_get(a, i1$1);
+          _i1 = i1$1;
+          continue ;
+          
+        } else {
+          return blit(src2, i2, dst, d + 1 | 0, src2r - i2 | 0);
+        }
+      } else {
+        Caml_array.caml_array_set(dst, d, s2);
+        var i2$1 = i2 + 1 | 0;
+        if (i2$1 < src2r) {
+          _d = d + 1 | 0;
+          _s2 = Caml_array.caml_array_get(src2, i2$1);
+          _i2 = i2$1;
+          continue ;
+          
+        } else {
+          return blit(a, i1, dst, d + 1 | 0, src1r - i1 | 0);
+        }
+      }
+    };
+  };
+  var isortto = function (srcofs, dst, dstofs, len) {
+    for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
+      var e = Caml_array.caml_array_get(a, srcofs + i | 0);
+      var j = (dstofs + i | 0) - 1 | 0;
+      while(j >= dstofs && Curry._2(cmp, Caml_array.caml_array_get(dst, j), e) > 0) {
+        Caml_array.caml_array_set(dst, j + 1 | 0, Caml_array.caml_array_get(dst, j));
+        j = j - 1 | 0;
+      };
+      Caml_array.caml_array_set(dst, j + 1 | 0, e);
+    }
+    return /* () */0;
+  };
+  var sortto = function (srcofs, dst, dstofs, len) {
+    if (len <= 5) {
+      return isortto(srcofs, dst, dstofs, len);
+    } else {
+      var l1 = len / 2 | 0;
+      var l2 = len - l1 | 0;
+      sortto(srcofs + l1 | 0, dst, dstofs + l1 | 0, l2);
+      sortto(srcofs, a, srcofs + l2 | 0, l1);
+      return merge(srcofs + l2 | 0, l1, dst, dstofs + l1 | 0, l2, dst, dstofs);
+    }
+  };
+  var l = a.length;
+  if (l <= 5) {
+    return isortto(0, a, 0, l);
+  } else {
+    var l1 = l / 2 | 0;
+    var l2 = l - l1 | 0;
+    var t = Caml_array.caml_make_vect(l2, Caml_array.caml_array_get(a, 0));
+    sortto(l1, t, 0, l2);
+    sortto(0, a, l2, l1);
+    return merge(l2, l1, t, 0, l2, a, 0);
+  }
+}
+
+var create_matrix = make_matrix;
+
+var concat = Caml_array.caml_array_concat;
+
+var fast_sort = stable_sort;
+
+exports.init          = init;
+exports.make_matrix   = make_matrix;
+exports.create_matrix = create_matrix;
+exports.append        = append;
+exports.concat        = concat;
+exports.sub           = sub;
+exports.copy          = copy;
+exports.fill          = fill;
+exports.blit          = blit;
+exports.to_list       = to_list;
+exports.of_list       = of_list;
+exports.iter          = iter;
+exports.map           = map;
+exports.iteri         = iteri;
+exports.mapi          = mapi;
+exports.fold_left     = fold_left;
+exports.fold_right    = fold_right;
+exports.sort          = sort;
+exports.stable_sort   = stable_sort;
+exports.fast_sort     = fast_sort;
+/* No side effect */
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function caml_array_sub(x, offset, len) {
@@ -2093,18 +2532,18 @@ exports.caml_array_set    = caml_array_set;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var List                            = __webpack_require__(28);
-var $$Array                         = __webpack_require__(12);
+var $$Array                         = __webpack_require__(8);
 var Curry                           = __webpack_require__(2);
 var React                           = __webpack_require__(21);
 var Caml_builtin_exceptions         = __webpack_require__(1);
-var ReasonReactOptimizedCreateClass = __webpack_require__(62);
+var ReasonReactOptimizedCreateClass = __webpack_require__(63);
 
 function createDomElement(s, props, children) {
   var vararg = /* array */[
@@ -2750,7 +3189,7 @@ exports.Router                              = Router;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3066,7 +3505,7 @@ exports.caml_lessequal         = caml_lessequal;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3272,445 +3711,6 @@ exports.caml_string_get16         = caml_string_get16;
 exports.caml_string_get32         = caml_string_get32;
 exports.string_of_char            = string_of_char;
 exports.get                       = get;
-/* No side effect */
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Curry                   = __webpack_require__(2);
-var Js_exn                  = __webpack_require__(41);
-var Caml_array              = __webpack_require__(8);
-var Caml_exceptions         = __webpack_require__(23);
-var Caml_builtin_exceptions = __webpack_require__(1);
-
-function init(l, f) {
-  if (l) {
-    if (l < 0) {
-      throw [
-            Caml_builtin_exceptions.invalid_argument,
-            "Array.init"
-          ];
-    } else {
-      var res = Caml_array.caml_make_vect(l, Curry._1(f, 0));
-      for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-        res[i] = Curry._1(f, i);
-      }
-      return res;
-    }
-  } else {
-    return /* array */[];
-  }
-}
-
-function make_matrix(sx, sy, init) {
-  var res = Caml_array.caml_make_vect(sx, /* array */[]);
-  for(var x = 0 ,x_finish = sx - 1 | 0; x <= x_finish; ++x){
-    res[x] = Caml_array.caml_make_vect(sy, init);
-  }
-  return res;
-}
-
-function copy(a) {
-  var l = a.length;
-  if (l) {
-    return Caml_array.caml_array_sub(a, 0, l);
-  } else {
-    return /* array */[];
-  }
-}
-
-function append(a1, a2) {
-  var l1 = a1.length;
-  if (l1) {
-    if (a2.length) {
-      return a1.concat(a2);
-    } else {
-      return Caml_array.caml_array_sub(a1, 0, l1);
-    }
-  } else {
-    return copy(a2);
-  }
-}
-
-function sub(a, ofs, len) {
-  if (len < 0 || ofs > (a.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.sub"
-        ];
-  } else {
-    return Caml_array.caml_array_sub(a, ofs, len);
-  }
-}
-
-function fill(a, ofs, len, v) {
-  if (ofs < 0 || len < 0 || ofs > (a.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.fill"
-        ];
-  } else {
-    for(var i = ofs ,i_finish = (ofs + len | 0) - 1 | 0; i <= i_finish; ++i){
-      a[i] = v;
-    }
-    return /* () */0;
-  }
-}
-
-function blit(a1, ofs1, a2, ofs2, len) {
-  if (len < 0 || ofs1 < 0 || ofs1 > (a1.length - len | 0) || ofs2 < 0 || ofs2 > (a2.length - len | 0)) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "Array.blit"
-        ];
-  } else {
-    return Caml_array.caml_array_blit(a1, ofs1, a2, ofs2, len);
-  }
-}
-
-function iter(f, a) {
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    Curry._1(f, a[i]);
-  }
-  return /* () */0;
-}
-
-function map(f, a) {
-  var l = a.length;
-  if (l) {
-    var r = Caml_array.caml_make_vect(l, Curry._1(f, a[0]));
-    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-      r[i] = Curry._1(f, a[i]);
-    }
-    return r;
-  } else {
-    return /* array */[];
-  }
-}
-
-function iteri(f, a) {
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    Curry._2(f, i, a[i]);
-  }
-  return /* () */0;
-}
-
-function mapi(f, a) {
-  var l = a.length;
-  if (l) {
-    var r = Caml_array.caml_make_vect(l, Curry._2(f, 0, a[0]));
-    for(var i = 1 ,i_finish = l - 1 | 0; i <= i_finish; ++i){
-      r[i] = Curry._2(f, i, a[i]);
-    }
-    return r;
-  } else {
-    return /* array */[];
-  }
-}
-
-function to_list(a) {
-  var _i = a.length - 1 | 0;
-  var _res = /* [] */0;
-  while(true) {
-    var res = _res;
-    var i = _i;
-    if (i < 0) {
-      return res;
-    } else {
-      _res = /* :: */[
-        a[i],
-        res
-      ];
-      _i = i - 1 | 0;
-      continue ;
-      
-    }
-  };
-}
-
-function list_length(_accu, _param) {
-  while(true) {
-    var param = _param;
-    var accu = _accu;
-    if (param) {
-      _param = param[1];
-      _accu = accu + 1 | 0;
-      continue ;
-      
-    } else {
-      return accu;
-    }
-  };
-}
-
-function of_list(l) {
-  if (l) {
-    var a = Caml_array.caml_make_vect(list_length(0, l), l[0]);
-    var _i = 1;
-    var _param = l[1];
-    while(true) {
-      var param = _param;
-      var i = _i;
-      if (param) {
-        a[i] = param[0];
-        _param = param[1];
-        _i = i + 1 | 0;
-        continue ;
-        
-      } else {
-        return a;
-      }
-    };
-  } else {
-    return /* array */[];
-  }
-}
-
-function fold_left(f, x, a) {
-  var r = x;
-  for(var i = 0 ,i_finish = a.length - 1 | 0; i <= i_finish; ++i){
-    r = Curry._2(f, r, a[i]);
-  }
-  return r;
-}
-
-function fold_right(f, a, x) {
-  var r = x;
-  for(var i = a.length - 1 | 0; i >= 0; --i){
-    r = Curry._2(f, a[i], r);
-  }
-  return r;
-}
-
-var Bottom = Caml_exceptions.create("Array.Bottom");
-
-function sort(cmp, a) {
-  var maxson = function (l, i) {
-    var i31 = ((i + i | 0) + i | 0) + 1 | 0;
-    var x = i31;
-    if ((i31 + 2 | 0) < l) {
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
-        x = i31 + 1 | 0;
-      }
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, x), Caml_array.caml_array_get(a, i31 + 2 | 0)) < 0) {
-        x = i31 + 2 | 0;
-      }
-      return x;
-    } else if ((i31 + 1 | 0) < l && Curry._2(cmp, Caml_array.caml_array_get(a, i31), Caml_array.caml_array_get(a, i31 + 1 | 0)) < 0) {
-      return i31 + 1 | 0;
-    } else if (i31 < l) {
-      return i31;
-    } else {
-      throw [
-            Bottom,
-            i
-          ];
-    }
-  };
-  var trickle = function (l, i, e) {
-    try {
-      var l$1 = l;
-      var _i = i;
-      var e$1 = e;
-      while(true) {
-        var i$1 = _i;
-        var j = maxson(l$1, i$1);
-        if (Curry._2(cmp, Caml_array.caml_array_get(a, j), e$1) > 0) {
-          Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
-          _i = j;
-          continue ;
-          
-        } else {
-          return Caml_array.caml_array_set(a, i$1, e$1);
-        }
-      };
-    }
-    catch (raw_exn){
-      var exn = Js_exn.internalToOCamlException(raw_exn);
-      if (exn[0] === Bottom) {
-        return Caml_array.caml_array_set(a, exn[1], e);
-      } else {
-        throw exn;
-      }
-    }
-  };
-  var bubble = function (l, i) {
-    try {
-      var l$1 = l;
-      var _i = i;
-      while(true) {
-        var i$1 = _i;
-        var j = maxson(l$1, i$1);
-        Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, j));
-        _i = j;
-        continue ;
-        
-      };
-    }
-    catch (raw_exn){
-      var exn = Js_exn.internalToOCamlException(raw_exn);
-      if (exn[0] === Bottom) {
-        return exn[1];
-      } else {
-        throw exn;
-      }
-    }
-  };
-  var trickleup = function (_i, e) {
-    while(true) {
-      var i = _i;
-      var father = (i - 1 | 0) / 3 | 0;
-      if (i === father) {
-        throw [
-              Caml_builtin_exceptions.assert_failure,
-              [
-                "array.ml",
-                168,
-                4
-              ]
-            ];
-      }
-      if (Curry._2(cmp, Caml_array.caml_array_get(a, father), e) < 0) {
-        Caml_array.caml_array_set(a, i, Caml_array.caml_array_get(a, father));
-        if (father > 0) {
-          _i = father;
-          continue ;
-          
-        } else {
-          return Caml_array.caml_array_set(a, 0, e);
-        }
-      } else {
-        return Caml_array.caml_array_set(a, i, e);
-      }
-    };
-  };
-  var l = a.length;
-  for(var i = ((l + 1 | 0) / 3 | 0) - 1 | 0; i >= 0; --i){
-    trickle(l, i, Caml_array.caml_array_get(a, i));
-  }
-  for(var i$1 = l - 1 | 0; i$1 >= 2; --i$1){
-    var e = Caml_array.caml_array_get(a, i$1);
-    Caml_array.caml_array_set(a, i$1, Caml_array.caml_array_get(a, 0));
-    trickleup(bubble(i$1, 0), e);
-  }
-  if (l > 1) {
-    var e$1 = Caml_array.caml_array_get(a, 1);
-    Caml_array.caml_array_set(a, 1, Caml_array.caml_array_get(a, 0));
-    return Caml_array.caml_array_set(a, 0, e$1);
-  } else {
-    return 0;
-  }
-}
-
-function stable_sort(cmp, a) {
-  var merge = function (src1ofs, src1len, src2, src2ofs, src2len, dst, dstofs) {
-    var src1r = src1ofs + src1len | 0;
-    var src2r = src2ofs + src2len | 0;
-    var _i1 = src1ofs;
-    var _s1 = Caml_array.caml_array_get(a, src1ofs);
-    var _i2 = src2ofs;
-    var _s2 = Caml_array.caml_array_get(src2, src2ofs);
-    var _d = dstofs;
-    while(true) {
-      var d = _d;
-      var s2 = _s2;
-      var i2 = _i2;
-      var s1 = _s1;
-      var i1 = _i1;
-      if (Curry._2(cmp, s1, s2) <= 0) {
-        Caml_array.caml_array_set(dst, d, s1);
-        var i1$1 = i1 + 1 | 0;
-        if (i1$1 < src1r) {
-          _d = d + 1 | 0;
-          _s1 = Caml_array.caml_array_get(a, i1$1);
-          _i1 = i1$1;
-          continue ;
-          
-        } else {
-          return blit(src2, i2, dst, d + 1 | 0, src2r - i2 | 0);
-        }
-      } else {
-        Caml_array.caml_array_set(dst, d, s2);
-        var i2$1 = i2 + 1 | 0;
-        if (i2$1 < src2r) {
-          _d = d + 1 | 0;
-          _s2 = Caml_array.caml_array_get(src2, i2$1);
-          _i2 = i2$1;
-          continue ;
-          
-        } else {
-          return blit(a, i1, dst, d + 1 | 0, src1r - i1 | 0);
-        }
-      }
-    };
-  };
-  var isortto = function (srcofs, dst, dstofs, len) {
-    for(var i = 0 ,i_finish = len - 1 | 0; i <= i_finish; ++i){
-      var e = Caml_array.caml_array_get(a, srcofs + i | 0);
-      var j = (dstofs + i | 0) - 1 | 0;
-      while(j >= dstofs && Curry._2(cmp, Caml_array.caml_array_get(dst, j), e) > 0) {
-        Caml_array.caml_array_set(dst, j + 1 | 0, Caml_array.caml_array_get(dst, j));
-        j = j - 1 | 0;
-      };
-      Caml_array.caml_array_set(dst, j + 1 | 0, e);
-    }
-    return /* () */0;
-  };
-  var sortto = function (srcofs, dst, dstofs, len) {
-    if (len <= 5) {
-      return isortto(srcofs, dst, dstofs, len);
-    } else {
-      var l1 = len / 2 | 0;
-      var l2 = len - l1 | 0;
-      sortto(srcofs + l1 | 0, dst, dstofs + l1 | 0, l2);
-      sortto(srcofs, a, srcofs + l2 | 0, l1);
-      return merge(srcofs + l2 | 0, l1, dst, dstofs + l1 | 0, l2, dst, dstofs);
-    }
-  };
-  var l = a.length;
-  if (l <= 5) {
-    return isortto(0, a, 0, l);
-  } else {
-    var l1 = l / 2 | 0;
-    var l2 = l - l1 | 0;
-    var t = Caml_array.caml_make_vect(l2, Caml_array.caml_array_get(a, 0));
-    sortto(l1, t, 0, l2);
-    sortto(0, a, l2, l1);
-    return merge(l2, l1, t, 0, l2, a, 0);
-  }
-}
-
-var create_matrix = make_matrix;
-
-var concat = Caml_array.caml_array_concat;
-
-var fast_sort = stable_sort;
-
-exports.init          = init;
-exports.make_matrix   = make_matrix;
-exports.create_matrix = create_matrix;
-exports.append        = append;
-exports.concat        = concat;
-exports.sub           = sub;
-exports.copy          = copy;
-exports.fill          = fill;
-exports.blit          = blit;
-exports.to_list       = to_list;
-exports.of_list       = of_list;
-exports.iter          = iter;
-exports.map           = map;
-exports.iteri         = iteri;
-exports.mapi          = mapi;
-exports.fold_left     = fold_left;
-exports.fold_right    = fold_right;
-exports.sort          = sort;
-exports.stable_sort   = stable_sort;
-exports.fast_sort     = fast_sort;
 /* No side effect */
 
 
@@ -4090,7 +4090,7 @@ module.exports = emptyObject;
 "use strict";
 
 
-module.exports = __webpack_require__(64);
+module.exports = __webpack_require__(65);
 
 
 /***/ }),
@@ -5013,15 +5013,15 @@ exports.not_implemented = not_implemented;
 "use strict";
 
 
-var $$Array                 = __webpack_require__(12);
+var $$Array                 = __webpack_require__(8);
 var Block                   = __webpack_require__(22);
 var Curry                   = __webpack_require__(2);
-var Random                  = __webpack_require__(80);
-var Caml_obj                = __webpack_require__(10);
-var Caml_hash               = __webpack_require__(88);
-var Caml_array              = __webpack_require__(8);
+var Random                  = __webpack_require__(81);
+var Caml_obj                = __webpack_require__(11);
+var Caml_hash               = __webpack_require__(89);
+var Caml_array              = __webpack_require__(9);
 var Pervasives              = __webpack_require__(6);
-var CamlinternalLazy        = __webpack_require__(90);
+var CamlinternalLazy        = __webpack_require__(91);
 var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -5814,9 +5814,9 @@ exports.seeded_hash_param = seeded_hash_param;
 /* WEBPACK VAR INJECTION */(function(process) {
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports = __webpack_require__(51);
-} else {
   module.exports = __webpack_require__(52);
+} else {
+  module.exports = __webpack_require__(53);
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
@@ -5960,8 +5960,8 @@ module.exports = ReactCurrentOwner;
 "use strict";
 
 
-var ReactDom                = __webpack_require__(49);
-var Caml_array              = __webpack_require__(8);
+var ReactDom                = __webpack_require__(50);
+var Caml_array              = __webpack_require__(9);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function renderToElementWithClassName(reactElement, className) {
@@ -6086,7 +6086,7 @@ module.exports = checkPropTypes;
 
 
 var Curry                   = __webpack_require__(2);
-var Caml_obj                = __webpack_require__(10);
+var Caml_obj                = __webpack_require__(11);
 var Pervasives              = __webpack_require__(6);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -7783,7 +7783,7 @@ exports.merge        = merge;
 "use strict";
 
 
-var Caml_obj                = __webpack_require__(10);
+var Caml_obj                = __webpack_require__(11);
 var Caml_int32              = __webpack_require__(18);
 var Caml_utils              = __webpack_require__(40);
 var Caml_builtin_exceptions = __webpack_require__(1);
@@ -9103,7 +9103,7 @@ module.exports = shallowEqual;
  * 
  */
 
-var isTextNode = __webpack_require__(53);
+var isTextNode = __webpack_require__(54);
 
 /*eslint-disable no-bitwise */
 
@@ -9706,7 +9706,7 @@ var ReactCurrentOwner = __webpack_require__(25);
 var ReactComponentTreeHook = __webpack_require__(31);
 var ReactElement = __webpack_require__(13);
 
-var checkReactTypeSpec = __webpack_require__(70);
+var checkReactTypeSpec = __webpack_require__(71);
 
 var canDefineProperty = __webpack_require__(24);
 var getIteratorFn = __webpack_require__(45);
@@ -9946,7 +9946,7 @@ module.exports = ReactElementValidator;
 "use strict";
 
 
-var Caml_string             = __webpack_require__(11);
+var Caml_string             = __webpack_require__(12);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function chr(n) {
@@ -10053,9 +10053,61 @@ exports.compare   = compare;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
+var $$Array                    = __webpack_require__(8);
+var Hashtbl                    = __webpack_require__(20);
+var Pervasives                 = __webpack_require__(6);
+var Easy$ReactTemplate         = __webpack_require__(99);
+var Intermediate$ReactTemplate = __webpack_require__(100);
+
+var values = Hashtbl.create(/* None */0, 1);
+
+Hashtbl.add(values, "Easy", Easy$ReactTemplate.one);
+
+Hashtbl.add(values, "Intermediate", Intermediate$ReactTemplate.one);
+
+var values$1 = [/* array */[]];
+
+function addBoardName(key, _) {
+  values$1[0] = $$Array.append(values$1[0], /* array */[key]);
+  return /* () */0;
+}
+
+Hashtbl.iter(addBoardName, values);
+
+var boardNames = values$1[0];
+
+function generateInitialBoard(startingBoard) {
+  var board = /* array */[];
+  for(var i = 0; i <= 8; ++i){
+    var row = /* int array */[];
+    for(var j = 0; j <= 8; ++j){
+      var key = Pervasives.string_of_int(i) + ("-" + Pervasives.string_of_int(j));
+      row = Hashtbl.mem(startingBoard, key) ? $$Array.append(row, /* int array */[Hashtbl.find(startingBoard, key)]) : $$Array.append(row, /* int array */[0]);
+    }
+    board = $$Array.append(board, /* array */[row]);
+  }
+  return board;
+}
+
+var boards = values;
+
+exports.boards               = boards;
+exports.boardNames           = boardNames;
+exports.generateInitialBoard = generateInitialBoard;
+/* values Not a pure module */
+
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
+
+
 var ReactDOMRe         = __webpack_require__(26);
-var ReasonReact        = __webpack_require__(9);
-var Page$ReactTemplate = __webpack_require__(63);
+var ReasonReact        = __webpack_require__(10);
+var Page$ReactTemplate = __webpack_require__(64);
 
 ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, Page$ReactTemplate.make(/* array */[])), "index");
 
@@ -10063,7 +10115,7 @@ ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, P
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10101,15 +10153,15 @@ if (process.env.NODE_ENV === 'production') {
   // DCE check should happen before ReactDOM bundle executes so that
   // DevTools can report bad minification during injection.
   checkDCE();
-  module.exports = __webpack_require__(50);
+  module.exports = __webpack_require__(51);
 } else {
-  module.exports = __webpack_require__(55);
+  module.exports = __webpack_require__(56);
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10345,7 +10397,7 @@ Z.injectIntoDevTools({findFiberByHostInstance:pb,bundleType:0,version:"16.2.0",r
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10373,7 +10425,7 @@ isValidElement:K,version:"16.2.0",__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_F
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11738,7 +11790,7 @@ module.exports = react;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11753,7 +11805,7 @@ module.exports = react;
  * @typechecks
  */
 
-var isNode = __webpack_require__(54);
+var isNode = __webpack_require__(55);
 
 /**
  * @param {*} object The object to check.
@@ -11766,7 +11818,7 @@ function isTextNode(object) {
 module.exports = isTextNode;
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11794,7 +11846,7 @@ function isNode(object) {
 module.exports = isNode;
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11828,8 +11880,8 @@ var containsNode = __webpack_require__(37);
 var focusNode = __webpack_require__(38);
 var emptyObject = __webpack_require__(14);
 var checkPropTypes = __webpack_require__(27);
-var hyphenateStyleName = __webpack_require__(56);
-var camelizeStyleName = __webpack_require__(58);
+var hyphenateStyleName = __webpack_require__(57);
+var camelizeStyleName = __webpack_require__(59);
 
 /**
  * WARNING: DO NOT manually require this module.
@@ -27196,7 +27248,7 @@ module.exports = reactDom;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27211,7 +27263,7 @@ module.exports = reactDom;
 
 
 
-var hyphenate = __webpack_require__(57);
+var hyphenate = __webpack_require__(58);
 
 var msPattern = /^ms-/;
 
@@ -27238,7 +27290,7 @@ function hyphenateStyleName(string) {
 module.exports = hyphenateStyleName;
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27274,7 +27326,7 @@ function hyphenate(string) {
 module.exports = hyphenate;
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27289,7 +27341,7 @@ module.exports = hyphenate;
 
 
 
-var camelize = __webpack_require__(59);
+var camelize = __webpack_require__(60);
 
 var msPattern = /^-ms-/;
 
@@ -27317,7 +27369,7 @@ function camelizeStyleName(string) {
 module.exports = camelizeStyleName;
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27352,7 +27404,7 @@ function camelize(string) {
 module.exports = camelize;
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27490,7 +27542,7 @@ exports.caml_ml_out_channels_list   = caml_ml_out_channels_list;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27725,7 +27777,7 @@ exports.concat_fmt   = concat_fmt;
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28628,27 +28680,27 @@ exports.createClass          = createClass;
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                      = __webpack_require__(12);
+var $$Array                      = __webpack_require__(8);
 var Block                        = __webpack_require__(22);
 var Curry                        = __webpack_require__(2);
 var React                        = __webpack_require__(15);
 var Js_exn                       = __webpack_require__(41);
 var Hashtbl                      = __webpack_require__(20);
-var Caml_array                   = __webpack_require__(8);
+var Caml_array                   = __webpack_require__(9);
 var Caml_format                  = __webpack_require__(17);
-var ReasonReact                  = __webpack_require__(9);
-var Board$ReactTemplate          = __webpack_require__(93);
+var ReasonReact                  = __webpack_require__(10);
+var Board$ReactTemplate          = __webpack_require__(94);
 var Caml_builtin_exceptions      = __webpack_require__(1);
-var BoardFooter$ReactTemplate    = __webpack_require__(96);
-var BoardHeading$ReactTemplate   = __webpack_require__(97);
-var StartingBoards$ReactTemplate = __webpack_require__(98);
+var BoardFooter$ReactTemplate    = __webpack_require__(97);
+var BoardHeading$ReactTemplate   = __webpack_require__(98);
+var StartingBoards$ReactTemplate = __webpack_require__(48);
 
 var component = ReasonReact.reducerComponent("Page");
 
@@ -28674,7 +28726,7 @@ function make() {
       };
       return React.createElement("div", {
                   style: style
-                }, React.createElement("div", undefined, ReasonReact.element(/* None */0, /* None */0, BoardHeading$ReactTemplate.make(handleSwitchBoard, /* array */[])), ReasonReact.element(/* None */0, /* None */0, Board$ReactTemplate.make(self[/* state */2][/* board */0], self[/* state */2][/* startingBoard */1], handleChange, /* array */[])), ReasonReact.element(/* None */0, /* None */0, BoardFooter$ReactTemplate.make(/* array */[]))));
+                }, React.createElement("div", undefined, ReasonReact.element(/* None */0, /* None */0, BoardHeading$ReactTemplate.make(handleSwitchBoard, /* array */[])), ReasonReact.element(/* None */0, /* None */0, Board$ReactTemplate.make(self[/* state */2][/* board */0], self[/* state */2][/* startingBoard */1], "", handleChange, /* array */[])), ReasonReact.element(/* None */0, /* None */0, BoardFooter$ReactTemplate.make(/* array */[]))));
     });
   newrecord[/* initialState */10] = (function () {
       return /* record */[
@@ -28741,7 +28793,7 @@ exports.make      = make;
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28758,14 +28810,14 @@ exports.make      = make;
 var _assign = __webpack_require__(5);
 
 var ReactBaseClasses = __webpack_require__(42);
-var ReactChildren = __webpack_require__(65);
-var ReactDOMFactories = __webpack_require__(69);
+var ReactChildren = __webpack_require__(66);
+var ReactDOMFactories = __webpack_require__(70);
 var ReactElement = __webpack_require__(13);
-var ReactPropTypes = __webpack_require__(73);
-var ReactVersion = __webpack_require__(76);
+var ReactPropTypes = __webpack_require__(74);
+var ReactVersion = __webpack_require__(77);
 
-var createReactClass = __webpack_require__(77);
-var onlyChild = __webpack_require__(79);
+var createReactClass = __webpack_require__(78);
+var onlyChild = __webpack_require__(80);
 
 var createElement = ReactElement.createElement;
 var createFactory = ReactElement.createFactory;
@@ -28877,7 +28929,7 @@ module.exports = React;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28891,11 +28943,11 @@ module.exports = React;
 
 
 
-var PooledClass = __webpack_require__(66);
+var PooledClass = __webpack_require__(67);
 var ReactElement = __webpack_require__(13);
 
 var emptyFunction = __webpack_require__(7);
-var traverseAllChildren = __webpack_require__(67);
+var traverseAllChildren = __webpack_require__(68);
 
 var twoArgumentPooler = PooledClass.twoArgumentPooler;
 var fourArgumentPooler = PooledClass.fourArgumentPooler;
@@ -29071,7 +29123,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29187,7 +29239,7 @@ module.exports = PooledClass;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29208,7 +29260,7 @@ var REACT_ELEMENT_TYPE = __webpack_require__(44);
 
 var getIteratorFn = __webpack_require__(45);
 var invariant = __webpack_require__(3);
-var KeyEscapeUtils = __webpack_require__(68);
+var KeyEscapeUtils = __webpack_require__(69);
 var warning = __webpack_require__(4);
 
 var SEPARATOR = '.';
@@ -29367,7 +29419,7 @@ module.exports = traverseAllChildren;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29429,7 +29481,7 @@ var KeyEscapeUtils = {
 module.exports = KeyEscapeUtils;
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29602,7 +29654,7 @@ module.exports = ReactDOMFactories;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29618,8 +29670,8 @@ module.exports = ReactDOMFactories;
 
 var _prodInvariant = __webpack_require__(16);
 
-var ReactPropTypeLocationNames = __webpack_require__(71);
-var ReactPropTypesSecret = __webpack_require__(72);
+var ReactPropTypeLocationNames = __webpack_require__(72);
+var ReactPropTypesSecret = __webpack_require__(73);
 
 var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
@@ -29693,7 +29745,7 @@ module.exports = checkReactTypeSpec;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29722,7 +29774,7 @@ module.exports = ReactPropTypeLocationNames;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29742,7 +29794,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 module.exports = ReactPropTypesSecret;
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29759,12 +29811,12 @@ module.exports = ReactPropTypesSecret;
 var _require = __webpack_require__(13),
     isValidElement = _require.isValidElement;
 
-var factory = __webpack_require__(74);
+var factory = __webpack_require__(75);
 
 module.exports = factory(isValidElement);
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29781,7 +29833,7 @@ module.exports = factory(isValidElement);
 // Therefore we re-export development-only version with all the PropTypes checks here.
 // However if one is migrating to the `prop-types` npm library, they will go through the
 // `index.js` entry point, and it will branch depending on the environment.
-var factory = __webpack_require__(75);
+var factory = __webpack_require__(76);
 module.exports = function(isValidElement) {
   // It is still allowed in 15.5.
   var throwOnDirectAccess = false;
@@ -29790,7 +29842,7 @@ module.exports = function(isValidElement) {
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30340,7 +30392,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30357,7 +30409,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 module.exports = '15.6.2';
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -30378,12 +30430,12 @@ var _require2 = __webpack_require__(13),
     isValidElement = _require2.isValidElement;
 
 var ReactNoopUpdateQueue = __webpack_require__(43);
-var factory = __webpack_require__(78);
+var factory = __webpack_require__(79);
 
 module.exports = factory(Component, isValidElement, ReactNoopUpdateQueue);
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31317,7 +31369,7 @@ module.exports = factory;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31359,23 +31411,23 @@ module.exports = onlyChild;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var $$Array                 = __webpack_require__(12);
+var $$Array                 = __webpack_require__(8);
 var Curry                   = __webpack_require__(2);
-var Int32                   = __webpack_require__(81);
-var Int64                   = __webpack_require__(82);
-var Digest                  = __webpack_require__(83);
+var Int32                   = __webpack_require__(82);
+var Int64                   = __webpack_require__(83);
+var Digest                  = __webpack_require__(84);
 var Caml_sys                = __webpack_require__(39);
-var Nativeint               = __webpack_require__(87);
-var Caml_array              = __webpack_require__(8);
+var Nativeint               = __webpack_require__(88);
+var Caml_array              = __webpack_require__(9);
 var Caml_int64              = __webpack_require__(29);
 var Pervasives              = __webpack_require__(6);
-var Caml_string             = __webpack_require__(11);
+var Caml_string             = __webpack_require__(12);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function assign(st1, st2) {
@@ -31675,13 +31727,13 @@ exports.set_state = set_state;
 
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Caml_obj    = __webpack_require__(10);
+var Caml_obj    = __webpack_require__(11);
 var Caml_format = __webpack_require__(17);
 
 function succ(n) {
@@ -31735,7 +31787,7 @@ exports.compare   = compare;
 
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31822,17 +31874,17 @@ exports.compare   = compare;
 
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var Char                    = __webpack_require__(47);
-var $$String                = __webpack_require__(84);
-var Caml_md5                = __webpack_require__(86);
+var $$String                = __webpack_require__(85);
+var Caml_md5                = __webpack_require__(87);
 var Pervasives              = __webpack_require__(6);
-var Caml_string             = __webpack_require__(11);
+var Caml_string             = __webpack_require__(12);
 var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -31961,16 +32013,16 @@ exports.from_hex  = from_hex;
 
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var List        = __webpack_require__(28);
-var Bytes       = __webpack_require__(85);
+var Bytes       = __webpack_require__(86);
 var Caml_int32  = __webpack_require__(18);
-var Caml_string = __webpack_require__(11);
+var Caml_string = __webpack_require__(12);
 
 function make(n, c) {
   return Caml_string.bytes_to_string(Bytes.make(n, c));
@@ -32170,7 +32222,7 @@ exports.compare        = compare;
 
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32179,10 +32231,10 @@ exports.compare        = compare;
 var Char                    = __webpack_require__(47);
 var List                    = __webpack_require__(28);
 var Curry                   = __webpack_require__(2);
-var Caml_obj                = __webpack_require__(10);
+var Caml_obj                = __webpack_require__(11);
 var Caml_int32              = __webpack_require__(18);
 var Pervasives              = __webpack_require__(6);
-var Caml_string             = __webpack_require__(11);
+var Caml_string             = __webpack_require__(12);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function make(n, c) {
@@ -32672,7 +32724,7 @@ exports.unsafe_of_string = unsafe_of_string;
 
 
 /***/ }),
-/* 86 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32846,13 +32898,13 @@ exports.caml_md5_string = caml_md5_string;
 
 
 /***/ }),
-/* 87 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Caml_obj    = __webpack_require__(10);
+var Caml_obj    = __webpack_require__(11);
 var Caml_format = __webpack_require__(17);
 
 function succ(n) {
@@ -32909,14 +32961,14 @@ exports.compare   = compare;
 
 
 /***/ }),
-/* 88 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var Caml_int32              = __webpack_require__(18);
-var Caml_queue              = __webpack_require__(89);
+var Caml_queue              = __webpack_require__(90);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function rotl32(x, n) {
@@ -33031,7 +33083,7 @@ exports.caml_hash = caml_hash;
 
 
 /***/ }),
-/* 89 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33091,13 +33143,13 @@ exports.is_empty   = is_empty;
 
 
 /***/ }),
-/* 90 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Obj             = __webpack_require__(91);
+var Obj             = __webpack_require__(92);
 var Curry           = __webpack_require__(2);
 var Caml_exceptions = __webpack_require__(23);
 
@@ -33164,14 +33216,14 @@ exports.force_val            = force_val;
 
 
 /***/ }),
-/* 91 */
+/* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Marshal                 = __webpack_require__(92);
-var Caml_array              = __webpack_require__(8);
+var Marshal                 = __webpack_require__(93);
+var Caml_array              = __webpack_require__(9);
 var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -33317,13 +33369,13 @@ exports.unmarshal                          = unmarshal;
 
 
 /***/ }),
-/* 92 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Caml_string             = __webpack_require__(11);
+var Caml_string             = __webpack_require__(12);
 var Caml_missing_polyfill   = __webpack_require__(19);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
@@ -33398,18 +33450,18 @@ exports.total_size   = total_size;
 
 
 /***/ }),
-/* 93 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array           = __webpack_require__(12);
+var $$Array           = __webpack_require__(8);
 var React             = __webpack_require__(15);
 var Pervasives        = __webpack_require__(6);
-var ReasonReact       = __webpack_require__(9);
-var Row$ReactTemplate = __webpack_require__(94);
+var ReasonReact       = __webpack_require__(10);
+var Row$ReactTemplate = __webpack_require__(95);
 
 var component = ReasonReact.statelessComponent("Board");
 
@@ -33418,56 +33470,14 @@ var style = {
   boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.4)"
 };
 
-function make(board, startingBoard, handleChange, _) {
+function make(board, startingBoard, status, handleChange, _) {
   var newrecord = component.slice();
   newrecord[/* render */9] = (function () {
       return React.createElement("div", {
                   style: style
                 }, $$Array.mapi((function (index, row) {
-                        return ReasonReact.element(/* Some */[Pervasives.string_of_int(index)], /* None */0, Row$ReactTemplate.make(handleChange, index, row, startingBoard, /* array */[]));
+                        return ReasonReact.element(/* Some */[Pervasives.string_of_int(index)], /* None */0, Row$ReactTemplate.make(handleChange, index, row, startingBoard, status, /* array */[]));
                       }), board));
-    });
-  return newrecord;
-}
-
-exports.component = component;
-exports.style     = style;
-exports.make      = make;
-/* component Not a pure module */
-
-
-/***/ }),
-/* 94 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-// Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
-
-
-var $$Array           = __webpack_require__(12);
-var React             = __webpack_require__(15);
-var Hashtbl           = __webpack_require__(20);
-var Pervasives        = __webpack_require__(6);
-var ReasonReact       = __webpack_require__(9);
-var Box$ReactTemplate = __webpack_require__(95);
-
-var component = ReasonReact.statelessComponent("Row");
-
-var style = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-start"
-};
-
-function make(handleChange, index, row, startingBoard, _) {
-  var newrecord = component.slice();
-  newrecord[/* render */9] = (function () {
-      return React.createElement("div", {
-                  className: "row",
-                  style: style
-                }, $$Array.mapi((function (j, column) {
-                        return ReasonReact.element(/* Some */[Pervasives.string_of_int(j)], /* None */0, Box$ReactTemplate.make(column, /* Some */[Hashtbl.mem(startingBoard, Pervasives.string_of_int(index) + ("-" + Pervasives.string_of_int(j)))], handleChange, index, j, /* array */[]));
-                      }), row));
     });
   return newrecord;
 }
@@ -33486,82 +33496,37 @@ exports.make      = make;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var Curry       = __webpack_require__(2);
-var React       = __webpack_require__(15);
-var Pervasives  = __webpack_require__(6);
-var ReactDOMRe  = __webpack_require__(26);
-var ReasonReact = __webpack_require__(9);
+var $$Array           = __webpack_require__(8);
+var React             = __webpack_require__(15);
+var Hashtbl           = __webpack_require__(20);
+var Pervasives        = __webpack_require__(6);
+var ReasonReact       = __webpack_require__(10);
+var Box$ReactTemplate = __webpack_require__(96);
 
-var component = ReasonReact.statelessComponent("Box");
+var component = ReasonReact.statelessComponent("Row");
 
-var color = "#1E2D24";
-
-var baseStyles = {
-  background: "#fff",
-  border: "1px solid #1E2D24",
-  color: color,
+var style = {
   display: "flex",
-  fontFamily: "'Rubik', sans-serif",
-  fontSize: "32px",
-  height: "64px",
-  width: "64px",
   alignItems: "center",
-  justifyContent: "center"
+  justifyContent: "flex-start"
 };
 
-var providedStyles = ReactDOMRe.Style[/* combine */0](baseStyles, {
-      cursor: "not-allowed",
-      fontWeight: "bold",
-      userSelect: "none"
-    });
-
-var inputStyles = {
-  background: "transparent",
-  border: "0",
-  color: "#0055CC",
-  display: "block",
-  fontFamily: "'Rubik', sans-serif",
-  fontSize: "32px",
-  height: "64px",
-  lineHeight: "64px",
-  padding: "0",
-  textAlign: "center",
-  width: "100%"
-};
-
-function make(value, $staropt$star, handleChange, row, column, _) {
-  var provided = $staropt$star ? $staropt$star[0] : /* false */0;
-  var onChange = function ($$event) {
-    return Curry._3(handleChange, $$event.target.value, row, column);
-  };
+function make(handleChange, index, row, startingBoard, status, _) {
   var newrecord = component.slice();
   newrecord[/* render */9] = (function () {
-      var tmp;
-      if (provided !== 0) {
-        tmp = Pervasives.string_of_int(value);
-      } else {
-        var match = +(value > 0);
-        tmp = React.createElement("input", {
-              style: inputStyles,
-              value: match !== 0 ? Pervasives.string_of_int(value) : "",
-              onChange: onChange
-            });
-      }
       return React.createElement("div", {
-                  className: "box"
-                }, React.createElement("div", {
-                      style: provided !== 0 ? providedStyles : baseStyles
-                    }, React.createElement("span", undefined, tmp)));
+                  className: "row",
+                  style: style
+                }, $$Array.mapi((function (j, column) {
+                        return ReasonReact.element(/* Some */[Pervasives.string_of_int(j)], /* None */0, Box$ReactTemplate.make(column, /* Some */[Hashtbl.mem(startingBoard, Pervasives.string_of_int(index) + ("-" + Pervasives.string_of_int(j)))], handleChange, index, j, status, /* array */[]));
+                      }), row));
     });
   return newrecord;
 }
 
-exports.component      = component;
-exports.color          = color;
-exports.baseStyles     = baseStyles;
-exports.providedStyles = providedStyles;
-exports.inputStyles    = inputStyles;
-exports.make           = make;
+exports.component = component;
+exports.style     = style;
+exports.make      = make;
 /* component Not a pure module */
 
 
@@ -33573,8 +33538,152 @@ exports.make           = make;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
+var Curry       = __webpack_require__(2);
 var React       = __webpack_require__(15);
-var ReasonReact = __webpack_require__(9);
+var Pervasives  = __webpack_require__(6);
+var ReactDOMRe  = __webpack_require__(26);
+var ReasonReact = __webpack_require__(10);
+
+var component = ReasonReact.statelessComponent("Box");
+
+var color = "#1E2D24";
+
+var box = {
+  background: "#fff",
+  border: "1px solid #1E2D24",
+  color: color,
+  display: "flex",
+  fontFamily: "'Rubik', sans-serif",
+  height: "64px",
+  width: "64px",
+  alignItems: "center",
+  justifyContent: "center"
+};
+
+var baseStyles = {
+  background: "#fff",
+  border: "0",
+  fontFamily: "'Rubik', sans-serif",
+  fontSize: "32px",
+  height: "64px",
+  lineHeight: "64px",
+  padding: "0",
+  textAlign: "center",
+  width: "64px"
+};
+
+var invalidStyles = {
+  background: "#FFB3B9",
+  color: "#CC0011",
+  boxShadow: "inset 0 0 6px #CC0011"
+};
+
+var validStyles = {
+  background: "#DAF2EA",
+  color: "#008055",
+  boxShadow: "inset 0 0 6px #008055"
+};
+
+var defaultProvidedStyles = ReactDOMRe.Style[/* combine */0](baseStyles, {
+      color: color,
+      cursor: "not-allowed",
+      display: "flex",
+      fontWeight: "bold",
+      alignItems: "center",
+      justifyContent: "center",
+      userSelect: "none"
+    });
+
+var defaultInputStyles = ReactDOMRe.Style[/* combine */0](baseStyles, {
+      color: "#0055CC",
+      display: "block"
+    });
+
+var invalidProvidedStyles = ReactDOMRe.Style[/* combine */0](defaultProvidedStyles, invalidStyles);
+
+var invalidInputStyles = ReactDOMRe.Style[/* combine */0](defaultInputStyles, invalidStyles);
+
+var validProvidedStyles = ReactDOMRe.Style[/* combine */0](defaultProvidedStyles, validStyles);
+
+var validInputStyles = ReactDOMRe.Style[/* combine */0](defaultInputStyles, validStyles);
+
+function make(value, $staropt$star, handleChange, row, column, status, _) {
+  var provided = $staropt$star ? $staropt$star[0] : /* false */0;
+  var onChange = function ($$event) {
+    return Curry._3(handleChange, $$event.target.value, row, column);
+  };
+  var newrecord = component.slice();
+  newrecord[/* render */9] = (function () {
+      var inputStyles;
+      switch (status) {
+        case "invalid" : 
+            inputStyles = invalidInputStyles;
+            break;
+        case "valid" : 
+            inputStyles = validInputStyles;
+            break;
+        default:
+          inputStyles = defaultInputStyles;
+      }
+      var providedStyles;
+      switch (status) {
+        case "invalid" : 
+            providedStyles = invalidProvidedStyles;
+            break;
+        case "valid" : 
+            providedStyles = validProvidedStyles;
+            break;
+        default:
+          providedStyles = defaultProvidedStyles;
+      }
+      var tmp;
+      if (provided !== 0) {
+        tmp = React.createElement("span", {
+              style: providedStyles
+            }, Pervasives.string_of_int(value));
+      } else {
+        var match = +(value > 0);
+        tmp = React.createElement("input", {
+              style: inputStyles,
+              value: match !== 0 ? Pervasives.string_of_int(value) : "",
+              onChange: onChange
+            });
+      }
+      return React.createElement("div", {
+                  className: "box"
+                }, React.createElement("div", {
+                      style: box
+                    }, React.createElement("span", undefined, tmp)));
+    });
+  return newrecord;
+}
+
+exports.component             = component;
+exports.color                 = color;
+exports.box                   = box;
+exports.baseStyles            = baseStyles;
+exports.invalidStyles         = invalidStyles;
+exports.validStyles           = validStyles;
+exports.defaultProvidedStyles = defaultProvidedStyles;
+exports.defaultInputStyles    = defaultInputStyles;
+exports.invalidProvidedStyles = invalidProvidedStyles;
+exports.invalidInputStyles    = invalidInputStyles;
+exports.validProvidedStyles   = validProvidedStyles;
+exports.validInputStyles      = validInputStyles;
+exports.make                  = make;
+/* component Not a pure module */
+
+
+/***/ }),
+/* 97 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
+
+
+var React       = __webpack_require__(15);
+var ReasonReact = __webpack_require__(10);
 
 var component = ReasonReact.statelessComponent("BoardFooter");
 
@@ -33620,19 +33729,19 @@ exports.make      = make;
 
 
 /***/ }),
-/* 97 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                      = __webpack_require__(12);
+var $$Array                      = __webpack_require__(8);
 var Curry                        = __webpack_require__(2);
 var React                        = __webpack_require__(15);
 var ReactDOMRe                   = __webpack_require__(26);
-var ReasonReact                  = __webpack_require__(9);
-var StartingBoards$ReactTemplate = __webpack_require__(98);
+var ReasonReact                  = __webpack_require__(10);
+var StartingBoards$ReactTemplate = __webpack_require__(48);
 
 var component = ReasonReact.statelessComponent("BoardHeading");
 
@@ -33693,58 +33802,6 @@ exports.headingStyle = headingStyle;
 exports.smallStyle   = smallStyle;
 exports.make         = make;
 /* component Not a pure module */
-
-
-/***/ }),
-/* 98 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-// Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
-
-
-var $$Array                    = __webpack_require__(12);
-var Hashtbl                    = __webpack_require__(20);
-var Pervasives                 = __webpack_require__(6);
-var Easy$ReactTemplate         = __webpack_require__(99);
-var Intermediate$ReactTemplate = __webpack_require__(100);
-
-var values = Hashtbl.create(/* None */0, 1);
-
-Hashtbl.add(values, "Easy", Easy$ReactTemplate.one);
-
-Hashtbl.add(values, "Intermediate", Intermediate$ReactTemplate.one);
-
-var values$1 = [/* array */[]];
-
-function addBoardName(key, _) {
-  values$1[0] = $$Array.append(values$1[0], /* array */[key]);
-  return /* () */0;
-}
-
-Hashtbl.iter(addBoardName, values);
-
-var boardNames = values$1[0];
-
-function generateInitialBoard(startingBoard) {
-  var board = /* array */[];
-  for(var i = 0; i <= 8; ++i){
-    var row = /* int array */[];
-    for(var j = 0; j <= 8; ++j){
-      var key = Pervasives.string_of_int(i) + ("-" + Pervasives.string_of_int(j));
-      row = Hashtbl.mem(startingBoard, key) ? $$Array.append(row, /* int array */[Hashtbl.find(startingBoard, key)]) : $$Array.append(row, /* int array */[0]);
-    }
-    board = $$Array.append(board, /* array */[row]);
-  }
-  return board;
-}
-
-var boards = values;
-
-exports.boards               = boards;
-exports.boardNames           = boardNames;
-exports.generateInitialBoard = generateInitialBoard;
-/* values Not a pure module */
 
 
 /***/ }),

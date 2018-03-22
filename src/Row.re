@@ -15,6 +15,7 @@ let make =
       ~index: int,
       ~row: array(int),
       ~startingBoard: StartingBoards.providedValues,
+      ~status,
       _children
     ) => {
   ...component,
@@ -36,6 +37,7 @@ let make =
                 row=index
                 column=j
                 key=(string_of_int(j))
+                status
               />,
             row
           )

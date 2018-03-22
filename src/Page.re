@@ -68,6 +68,7 @@ let make = _children => {
       <div>
         <BoardHeading handleSwitchBoard />
         <Board
+          status=""
           handleChange
           board=self.state.board
           startingBoard=self.state.startingBoard
