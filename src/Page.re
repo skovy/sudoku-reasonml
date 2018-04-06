@@ -10,7 +10,7 @@ type state = {
 
 let component = ReasonReact.reducerComponent("Page");
 
-let initialState = (~boardName="Easy", ()): state => {
+let initialState = (~boardName="Easy", ()) : state => {
   startingBoard: Hashtbl.find(StartingBoards.boards, boardName),
   board:
     StartingBoards.generateInitialBoard(
@@ -31,19 +31,27 @@ let reducer = (action: action, state: state) =>
     switch (int_of_string(value)) {
     | exception (Failure("int_of_string")) =>
       newRow[column] = 0;
-      ReasonReact.Update({...state, board: newBoard});
+      ReasonReact.Update({
+        ...state,
+        board: newBoard,
+        status: Validate.getStatusForBoard(newBoard)
+      });
     | intValue =>
       /* Only allow valid values 1-9 */
       if (intValue < 1 || intValue > 9) {
         ReasonReact.NoUpdate;
       } else {
         newRow[column] = intValue;
-        ReasonReact.Update({...state, board: newBoard});
+        ReasonReact.Update({
+          ...state,
+          board: newBoard,
+          status: Validate.getStatusForBoard(newBoard)
+        });
       }
     };
   | SwitchBoard(boardName) =>
     /* Update the currently selected board to another starting board */
-    ReasonReact.Update(initialState(~boardName=boardName, ()));
+    ReasonReact.Update(initialState(~boardName, ()))
   };
 
 let style =

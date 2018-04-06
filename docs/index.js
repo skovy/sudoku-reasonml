@@ -1077,7 +1077,7 @@ module.exports = invariant;
 
 
 
-var emptyFunction = __webpack_require__(7);
+var emptyFunction = __webpack_require__(8);
 
 /**
  * Similar to invariant but only logs a warning if the condition is not met.
@@ -1241,7 +1241,7 @@ var Caml_obj                 = __webpack_require__(11);
 var Caml_sys                 = __webpack_require__(39);
 var Caml_format              = __webpack_require__(17);
 var Caml_string              = __webpack_require__(12);
-var Caml_exceptions          = __webpack_require__(23);
+var Caml_exceptions          = __webpack_require__(24);
 var Caml_missing_polyfill    = __webpack_require__(19);
 var Caml_builtin_exceptions  = __webpack_require__(1);
 var CamlinternalFormatBasics = __webpack_require__(62);
@@ -1936,52 +1936,10 @@ exports.do_at_exit          = do_at_exit;
 "use strict";
 
 
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-function makeEmptyFunction(arg) {
-  return function () {
-    return arg;
-  };
-}
-
-/**
- * This function accepts and discards inputs; it has no side effects. This is
- * primarily useful idiomatically for overridable function endpoints which
- * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
- */
-var emptyFunction = function emptyFunction() {};
-
-emptyFunction.thatReturns = makeEmptyFunction;
-emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
-emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
-emptyFunction.thatReturnsNull = makeEmptyFunction(null);
-emptyFunction.thatReturnsThis = function () {
-  return this;
-};
-emptyFunction.thatReturnsArgument = function (arg) {
-  return arg;
-};
-
-module.exports = emptyFunction;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 var Curry                   = __webpack_require__(2);
 var Js_exn                  = __webpack_require__(41);
 var Caml_array              = __webpack_require__(9);
-var Caml_exceptions         = __webpack_require__(23);
+var Caml_exceptions         = __webpack_require__(24);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function init(l, f) {
@@ -2411,6 +2369,48 @@ exports.fast_sort     = fast_sort;
 
 
 /***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
+
+function makeEmptyFunction(arg) {
+  return function () {
+    return arg;
+  };
+}
+
+/**
+ * This function accepts and discards inputs; it has no side effects. This is
+ * primarily useful idiomatically for overridable function endpoints which
+ * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
+ */
+var emptyFunction = function emptyFunction() {};
+
+emptyFunction.thatReturns = makeEmptyFunction;
+emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
+emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
+emptyFunction.thatReturnsNull = makeEmptyFunction(null);
+emptyFunction.thatReturnsThis = function () {
+  return this;
+};
+emptyFunction.thatReturnsArgument = function (arg) {
+  return arg;
+};
+
+module.exports = emptyFunction;
+
+/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2538,8 +2538,8 @@ exports.caml_array_set    = caml_array_set;
 "use strict";
 
 
-var List                            = __webpack_require__(28);
-var $$Array                         = __webpack_require__(8);
+var List                            = __webpack_require__(22);
+var $$Array                         = __webpack_require__(7);
 var Curry                           = __webpack_require__(2);
 var React                           = __webpack_require__(21);
 var Caml_builtin_exceptions         = __webpack_require__(1);
@@ -3195,7 +3195,7 @@ exports.Router                              = Router;
 "use strict";
 
 
-var Block                   = __webpack_require__(22);
+var Block                   = __webpack_require__(23);
 var Caml_builtin_exceptions = __webpack_require__(1);
 
 function caml_obj_dup(x) {
@@ -3731,10 +3731,10 @@ exports.get                       = get;
 
 var _assign = __webpack_require__(5);
 
-var ReactCurrentOwner = __webpack_require__(25);
+var ReactCurrentOwner = __webpack_require__(26);
 
 var warning = __webpack_require__(4);
-var canDefineProperty = __webpack_require__(24);
+var canDefineProperty = __webpack_require__(25);
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 var REACT_ELEMENT_TYPE = __webpack_require__(44);
@@ -5013,8 +5013,8 @@ exports.not_implemented = not_implemented;
 "use strict";
 
 
-var $$Array                 = __webpack_require__(8);
-var Block                   = __webpack_require__(22);
+var $$Array                 = __webpack_require__(7);
+var Block                   = __webpack_require__(23);
 var Curry                   = __webpack_require__(2);
 var Random                  = __webpack_require__(81);
 var Caml_obj                = __webpack_require__(11);
@@ -5823,263 +5823,6 @@ if (process.env.NODE_ENV === 'production') {
 
 /***/ }),
 /* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-
-function __(tag, block) {
-  block.tag = tag;
-  return block;
-}
-
-exports.__ = __;
-/* No side effect */
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-
-var id = [0];
-
-function caml_set_oo_id(b) {
-  b[1] = id[0];
-  id[0] += 1;
-  return b;
-}
-
-function get_id() {
-  id[0] += 1;
-  return id[0];
-}
-
-function create(str) {
-  var v_001 = get_id(/* () */0);
-  var v = /* tuple */[
-    str,
-    v_001
-  ];
-  v.tag = 248;
-  return v;
-}
-
-function isCamlExceptionOrOpenVariant(e) {
-  if (e === undefined) {
-    return /* false */0;
-  } else if (e.tag === 248) {
-    return /* true */1;
-  } else {
-    var slot = e[0];
-    if (slot !== undefined) {
-      return +(slot.tag === 248);
-    } else {
-      return /* false */0;
-    }
-  }
-}
-
-exports.caml_set_oo_id               = caml_set_oo_id;
-exports.get_id                       = get_id;
-exports.create                       = create;
-exports.isCamlExceptionOrOpenVariant = isCamlExceptionOrOpenVariant;
-/* No side effect */
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-
-
-var canDefineProperty = false;
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    // $FlowFixMe https://github.com/facebook/flow/issues/285
-    Object.defineProperty({}, 'x', { get: function () {} });
-    canDefineProperty = true;
-  } catch (x) {
-    // IE will fail on defineProperty
-  }
-}
-
-module.exports = canDefineProperty;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-
-
-/**
- * Keeps track of the current owner.
- *
- * The current owner is the component who should own any components that are
- * currently being constructed.
- */
-var ReactCurrentOwner = {
-  /**
-   * @internal
-   * @type {ReactComponent}
-   */
-  current: null
-};
-
-module.exports = ReactCurrentOwner;
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ReactDom                = __webpack_require__(50);
-var Caml_array              = __webpack_require__(9);
-var Caml_builtin_exceptions = __webpack_require__(1);
-
-function renderToElementWithClassName(reactElement, className) {
-  var elements = document.getElementsByClassName(className);
-  if (elements.length) {
-    ReactDom.render(reactElement, Caml_array.caml_array_get(elements, 0));
-    return /* () */0;
-  } else {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "ReactDOMRE.renderToElementWithClassName: no element of class " + (className + " found in the HTML.")
-        ];
-  }
-}
-
-function renderToElementWithId(reactElement, id) {
-  var match = document.getElementById(id);
-  if (match == null) {
-    throw [
-          Caml_builtin_exceptions.invalid_argument,
-          "ReactDOMRE.renderToElementWithId : no element of id " + (id + " found in the HTML.")
-        ];
-  } else {
-    ReactDom.render(reactElement, match);
-    return /* () */0;
-  }
-}
-
-function combine(a, b) {
-  return Object.assign(Object.assign({ }, a), b);
-}
-
-function unsafeAddProp(style, property, value) {
-  var dict = { };
-  dict[property] = value;
-  return combine(style, dict);
-}
-
-var Style = /* module */[
-  /* combine */combine,
-  /* unsafeAddProp */unsafeAddProp
-];
-
-exports.renderToElementWithClassName = renderToElementWithClassName;
-exports.renderToElementWithId        = renderToElementWithId;
-exports.Style                        = Style;
-/* react-dom Not a pure module */
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-
-
-if (process.env.NODE_ENV !== 'production') {
-  var invariant = __webpack_require__(3);
-  var warning = __webpack_require__(4);
-  var ReactPropTypesSecret = __webpack_require__(32);
-  var loggedTypeFailures = {};
-}
-
-/**
- * Assert that the values match with the type specs.
- * Error messages are memorized and will only be shown once.
- *
- * @param {object} typeSpecs Map of name to a ReactPropType
- * @param {object} values Runtime values that need to be type-checked
- * @param {string} location e.g. "prop", "context", "child context"
- * @param {string} componentName Name of the component for error messages.
- * @param {?Function} getStack Returns the component stack.
- * @private
- */
-function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
-  if (process.env.NODE_ENV !== 'production') {
-    for (var typeSpecName in typeSpecs) {
-      if (typeSpecs.hasOwnProperty(typeSpecName)) {
-        var error;
-        // Prop type validation may throw. In case they do, we don't want to
-        // fail the render phase where it didn't fail before. So we log it.
-        // After these have been cleaned up, we'll let them throw.
-        try {
-          // This is intentionally an invariant that gets caught. It's the same
-          // behavior as without this statement except with a better message.
-          invariant(typeof typeSpecs[typeSpecName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'the `prop-types` package, but received `%s`.', componentName || 'React class', location, typeSpecName, typeof typeSpecs[typeSpecName]);
-          error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
-        } catch (ex) {
-          error = ex;
-        }
-        warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', location, typeSpecName, typeof error);
-        if (error instanceof Error && !(error.message in loggedTypeFailures)) {
-          // Only monitor this failure once because there tends to be a lot of the
-          // same error.
-          loggedTypeFailures[error.message] = true;
-
-          var stack = getStack ? getStack() : '';
-
-          warning(false, 'Failed %s type: %s%s', location, error.message, stack != null ? stack : '');
-        }
-      }
-    }
-  }
-}
-
-module.exports = checkPropTypes;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7777,6 +7520,263 @@ exports.merge        = merge;
 
 
 /***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+
+function __(tag, block) {
+  block.tag = tag;
+  return block;
+}
+
+exports.__ = __;
+/* No side effect */
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+
+var id = [0];
+
+function caml_set_oo_id(b) {
+  b[1] = id[0];
+  id[0] += 1;
+  return b;
+}
+
+function get_id() {
+  id[0] += 1;
+  return id[0];
+}
+
+function create(str) {
+  var v_001 = get_id(/* () */0);
+  var v = /* tuple */[
+    str,
+    v_001
+  ];
+  v.tag = 248;
+  return v;
+}
+
+function isCamlExceptionOrOpenVariant(e) {
+  if (e === undefined) {
+    return /* false */0;
+  } else if (e.tag === 248) {
+    return /* true */1;
+  } else {
+    var slot = e[0];
+    if (slot !== undefined) {
+      return +(slot.tag === 248);
+    } else {
+      return /* false */0;
+    }
+  }
+}
+
+exports.caml_set_oo_id               = caml_set_oo_id;
+exports.get_id                       = get_id;
+exports.create                       = create;
+exports.isCamlExceptionOrOpenVariant = isCamlExceptionOrOpenVariant;
+/* No side effect */
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
+
+
+
+var canDefineProperty = false;
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    // $FlowFixMe https://github.com/facebook/flow/issues/285
+    Object.defineProperty({}, 'x', { get: function () {} });
+    canDefineProperty = true;
+  } catch (x) {
+    // IE will fail on defineProperty
+  }
+}
+
+module.exports = canDefineProperty;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * 
+ */
+
+
+
+/**
+ * Keeps track of the current owner.
+ *
+ * The current owner is the component who should own any components that are
+ * currently being constructed.
+ */
+var ReactCurrentOwner = {
+  /**
+   * @internal
+   * @type {ReactComponent}
+   */
+  current: null
+};
+
+module.exports = ReactCurrentOwner;
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ReactDom                = __webpack_require__(50);
+var Caml_array              = __webpack_require__(9);
+var Caml_builtin_exceptions = __webpack_require__(1);
+
+function renderToElementWithClassName(reactElement, className) {
+  var elements = document.getElementsByClassName(className);
+  if (elements.length) {
+    ReactDom.render(reactElement, Caml_array.caml_array_get(elements, 0));
+    return /* () */0;
+  } else {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "ReactDOMRE.renderToElementWithClassName: no element of class " + (className + " found in the HTML.")
+        ];
+  }
+}
+
+function renderToElementWithId(reactElement, id) {
+  var match = document.getElementById(id);
+  if (match == null) {
+    throw [
+          Caml_builtin_exceptions.invalid_argument,
+          "ReactDOMRE.renderToElementWithId : no element of id " + (id + " found in the HTML.")
+        ];
+  } else {
+    ReactDom.render(reactElement, match);
+    return /* () */0;
+  }
+}
+
+function combine(a, b) {
+  return Object.assign(Object.assign({ }, a), b);
+}
+
+function unsafeAddProp(style, property, value) {
+  var dict = { };
+  dict[property] = value;
+  return combine(style, dict);
+}
+
+var Style = /* module */[
+  /* combine */combine,
+  /* unsafeAddProp */unsafeAddProp
+];
+
+exports.renderToElementWithClassName = renderToElementWithClassName;
+exports.renderToElementWithId        = renderToElementWithId;
+exports.Style                        = Style;
+/* react-dom Not a pure module */
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+
+if (process.env.NODE_ENV !== 'production') {
+  var invariant = __webpack_require__(3);
+  var warning = __webpack_require__(4);
+  var ReactPropTypesSecret = __webpack_require__(32);
+  var loggedTypeFailures = {};
+}
+
+/**
+ * Assert that the values match with the type specs.
+ * Error messages are memorized and will only be shown once.
+ *
+ * @param {object} typeSpecs Map of name to a ReactPropType
+ * @param {object} values Runtime values that need to be type-checked
+ * @param {string} location e.g. "prop", "context", "child context"
+ * @param {string} componentName Name of the component for error messages.
+ * @param {?Function} getStack Returns the component stack.
+ * @private
+ */
+function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+  if (process.env.NODE_ENV !== 'production') {
+    for (var typeSpecName in typeSpecs) {
+      if (typeSpecs.hasOwnProperty(typeSpecName)) {
+        var error;
+        // Prop type validation may throw. In case they do, we don't want to
+        // fail the render phase where it didn't fail before. So we log it.
+        // After these have been cleaned up, we'll let them throw.
+        try {
+          // This is intentionally an invariant that gets caught. It's the same
+          // behavior as without this statement except with a better message.
+          invariant(typeof typeSpecs[typeSpecName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'the `prop-types` package, but received `%s`.', componentName || 'React class', location, typeSpecName, typeof typeSpecs[typeSpecName]);
+          error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
+        } catch (ex) {
+          error = ex;
+        }
+        warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', location, typeSpecName, typeof error);
+        if (error instanceof Error && !(error.message in loggedTypeFailures)) {
+          // Only monitor this failure once because there tends to be a lot of the
+          // same error.
+          loggedTypeFailures[error.message] = true;
+
+          var stack = getStack ? getStack() : '';
+
+          warning(false, 'Failed %s type: %s%s', location, error.message, stack != null ? stack : '');
+        }
+      }
+    }
+  }
+}
+
+module.exports = checkPropTypes;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
 /* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8470,7 +8470,7 @@ module.exports = lowPriorityWarning;
 
 var _prodInvariant = __webpack_require__(16);
 
-var ReactCurrentOwner = __webpack_require__(25);
+var ReactCurrentOwner = __webpack_require__(26);
 
 var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
@@ -8909,7 +8909,7 @@ module.exports = ExecutionEnvironment;
  * @typechecks
  */
 
-var emptyFunction = __webpack_require__(7);
+var emptyFunction = __webpack_require__(8);
 
 /**
  * Upstream version of event listener. Does not take into account specific
@@ -9312,7 +9312,7 @@ exports.repeat = repeat;
 "use strict";
 
 
-var Caml_exceptions = __webpack_require__(23);
+var Caml_exceptions = __webpack_require__(24);
 
 var $$Error = Caml_exceptions.create("Js_exn.Error");
 
@@ -9387,7 +9387,7 @@ var _prodInvariant = __webpack_require__(16),
 
 var ReactNoopUpdateQueue = __webpack_require__(43);
 
-var canDefineProperty = __webpack_require__(24);
+var canDefineProperty = __webpack_require__(25);
 var emptyObject = __webpack_require__(14);
 var invariant = __webpack_require__(3);
 var lowPriorityWarning = __webpack_require__(30);
@@ -9702,13 +9702,13 @@ module.exports = getIteratorFn;
 
 
 
-var ReactCurrentOwner = __webpack_require__(25);
+var ReactCurrentOwner = __webpack_require__(26);
 var ReactComponentTreeHook = __webpack_require__(31);
 var ReactElement = __webpack_require__(13);
 
 var checkReactTypeSpec = __webpack_require__(71);
 
-var canDefineProperty = __webpack_require__(24);
+var canDefineProperty = __webpack_require__(25);
 var getIteratorFn = __webpack_require__(45);
 var warning = __webpack_require__(4);
 var lowPriorityWarning = __webpack_require__(30);
@@ -10053,11 +10053,11 @@ exports.compare   = compare;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                    = __webpack_require__(8);
+var $$Array                    = __webpack_require__(7);
 var Hashtbl                    = __webpack_require__(20);
 var Pervasives                 = __webpack_require__(6);
-var Easy$ReactTemplate         = __webpack_require__(99);
-var Intermediate$ReactTemplate = __webpack_require__(100);
+var Easy$ReactTemplate         = __webpack_require__(100);
+var Intermediate$ReactTemplate = __webpack_require__(101);
 
 var values = Hashtbl.create(/* None */0, 1);
 
@@ -10105,7 +10105,7 @@ exports.generateInitialBoard = generateInitialBoard;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var ReactDOMRe         = __webpack_require__(26);
+var ReactDOMRe         = __webpack_require__(27);
 var ReasonReact        = __webpack_require__(10);
 var Page$ReactTemplate = __webpack_require__(64);
 
@@ -10177,7 +10177,7 @@ if (process.env.NODE_ENV === 'production') {
 /*
  Modernizr 3.0.0pre (Custom Build) | MIT
 */
-var aa=__webpack_require__(21),l=__webpack_require__(33),B=__webpack_require__(5),C=__webpack_require__(7),ba=__webpack_require__(34),da=__webpack_require__(35),ea=__webpack_require__(36),fa=__webpack_require__(37),ia=__webpack_require__(38),D=__webpack_require__(14);
+var aa=__webpack_require__(21),l=__webpack_require__(33),B=__webpack_require__(5),C=__webpack_require__(8),ba=__webpack_require__(34),da=__webpack_require__(35),ea=__webpack_require__(36),fa=__webpack_require__(37),ia=__webpack_require__(38),D=__webpack_require__(14);
 function E(a){for(var b=arguments.length-1,c="Minified React error #"+a+"; visit http://facebook.github.io/react/docs/error-decoder.html?invariant\x3d"+a,d=0;d<b;d++)c+="\x26args[]\x3d"+encodeURIComponent(arguments[d+1]);b=Error(c+" for the full message or use the non-minified dev environment for full errors and additional helpful warnings.");b.name="Invariant Violation";b.framesToPop=1;throw b;}aa?void 0:E("227");
 var oa={children:!0,dangerouslySetInnerHTML:!0,defaultValue:!0,defaultChecked:!0,innerHTML:!0,suppressContentEditableWarning:!0,suppressHydrationWarning:!0,style:!0};function pa(a,b){return(a&b)===b}
 var ta={MUST_USE_PROPERTY:1,HAS_BOOLEAN_VALUE:4,HAS_NUMERIC_VALUE:8,HAS_POSITIVE_NUMERIC_VALUE:24,HAS_OVERLOADED_BOOLEAN_VALUE:32,HAS_STRING_BOOLEAN_VALUE:64,injectDOMPropertyConfig:function(a){var b=ta,c=a.Properties||{},d=a.DOMAttributeNamespaces||{},e=a.DOMAttributeNames||{};a=a.DOMMutationMethods||{};for(var f in c){ua.hasOwnProperty(f)?E("48",f):void 0;var g=f.toLowerCase(),h=c[f];g={attributeName:g,attributeNamespace:null,propertyName:f,mutationMethod:null,mustUseProperty:pa(h,b.MUST_USE_PROPERTY),
@@ -10410,7 +10410,7 @@ Z.injectIntoDevTools({findFiberByHostInstance:pb,bundleType:0,version:"16.2.0",r
  * LICENSE file in the root directory of this source tree.
  */
 
-var m=__webpack_require__(5),n=__webpack_require__(14),p=__webpack_require__(7),q="function"===typeof Symbol&&Symbol["for"],r=q?Symbol["for"]("react.element"):60103,t=q?Symbol["for"]("react.call"):60104,u=q?Symbol["for"]("react.return"):60105,v=q?Symbol["for"]("react.portal"):60106,w=q?Symbol["for"]("react.fragment"):60107,x="function"===typeof Symbol&&Symbol.iterator;
+var m=__webpack_require__(5),n=__webpack_require__(14),p=__webpack_require__(8),q="function"===typeof Symbol&&Symbol["for"],r=q?Symbol["for"]("react.element"):60103,t=q?Symbol["for"]("react.call"):60104,u=q?Symbol["for"]("react.return"):60105,v=q?Symbol["for"]("react.portal"):60106,w=q?Symbol["for"]("react.fragment"):60107,x="function"===typeof Symbol&&Symbol.iterator;
 function y(a){for(var b=arguments.length-1,e="Minified React error #"+a+"; visit http://facebook.github.io/react/docs/error-decoder.html?invariant\x3d"+a,c=0;c<b;c++)e+="\x26args[]\x3d"+encodeURIComponent(arguments[c+1]);b=Error(e+" for the full message or use the non-minified dev environment for full errors and additional helpful warnings.");b.name="Invariant Violation";b.framesToPop=1;throw b;}
 var z={isMounted:function(){return!1},enqueueForceUpdate:function(){},enqueueReplaceState:function(){},enqueueSetState:function(){}};function A(a,b,e){this.props=a;this.context=b;this.refs=n;this.updater=e||z}A.prototype.isReactComponent={};A.prototype.setState=function(a,b){"object"!==typeof a&&"function"!==typeof a&&null!=a?y("85"):void 0;this.updater.enqueueSetState(this,a,b,"setState")};A.prototype.forceUpdate=function(a){this.updater.enqueueForceUpdate(this,a,"forceUpdate")};
 function B(a,b,e){this.props=a;this.context=b;this.refs=n;this.updater=e||z}function C(){}C.prototype=A.prototype;var D=B.prototype=new C;D.constructor=B;m(D,A.prototype);D.isPureReactComponent=!0;function E(a,b,e){this.props=a;this.context=b;this.refs=n;this.updater=e||z}var F=E.prototype=new C;F.constructor=E;m(F,A.prototype);F.unstable_isAsyncReactComponent=!0;F.render=function(){return this.props.children};var G={current:null},H=Object.prototype.hasOwnProperty,I={key:!0,ref:!0,__self:!0,__source:!0};
@@ -10450,8 +10450,8 @@ var _assign = __webpack_require__(5);
 var emptyObject = __webpack_require__(14);
 var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
-var emptyFunction = __webpack_require__(7);
-var checkPropTypes = __webpack_require__(27);
+var emptyFunction = __webpack_require__(8);
+var checkPropTypes = __webpack_require__(28);
 
 // TODO: this is special because it gets imported during build.
 
@@ -11872,14 +11872,14 @@ var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
 var ExecutionEnvironment = __webpack_require__(33);
 var _assign = __webpack_require__(5);
-var emptyFunction = __webpack_require__(7);
+var emptyFunction = __webpack_require__(8);
 var EventListener = __webpack_require__(34);
 var getActiveElement = __webpack_require__(35);
 var shallowEqual = __webpack_require__(36);
 var containsNode = __webpack_require__(37);
 var focusNode = __webpack_require__(38);
 var emptyObject = __webpack_require__(14);
-var checkPropTypes = __webpack_require__(27);
+var checkPropTypes = __webpack_require__(28);
 var hyphenateStyleName = __webpack_require__(57);
 var camelizeStyleName = __webpack_require__(59);
 
@@ -27548,7 +27548,7 @@ exports.caml_ml_out_channels_list   = caml_ml_out_channels_list;
 "use strict";
 
 
-var Block = __webpack_require__(22);
+var Block = __webpack_require__(23);
 
 function erase_rel(param) {
   if (typeof param === "number") {
@@ -28687,8 +28687,8 @@ exports.createClass          = createClass;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                      = __webpack_require__(8);
-var Block                        = __webpack_require__(22);
+var $$Array                      = __webpack_require__(7);
+var Block                        = __webpack_require__(23);
 var Curry                        = __webpack_require__(2);
 var React                        = __webpack_require__(15);
 var Js_exn                       = __webpack_require__(41);
@@ -28697,9 +28697,10 @@ var Caml_array                   = __webpack_require__(9);
 var Caml_format                  = __webpack_require__(17);
 var ReasonReact                  = __webpack_require__(10);
 var Board$ReactTemplate          = __webpack_require__(94);
+var Validate$ReactTemplate       = __webpack_require__(97);
 var Caml_builtin_exceptions      = __webpack_require__(1);
-var BoardFooter$ReactTemplate    = __webpack_require__(97);
-var BoardHeading$ReactTemplate   = __webpack_require__(98);
+var BoardFooter$ReactTemplate    = __webpack_require__(98);
+var BoardHeading$ReactTemplate   = __webpack_require__(99);
 var StartingBoards$ReactTemplate = __webpack_require__(48);
 
 var component = ReasonReact.reducerComponent("Page");
@@ -28736,7 +28737,7 @@ function reducer(action, state) {
           return /* Update */Block.__(0, [/* record */[
                       /* board */newBoard,
                       /* startingBoard */state[/* startingBoard */1],
-                      /* status */state[/* status */2]
+                      /* status */Validate$ReactTemplate.getStatusForBoard(newBoard)
                     ]]);
         } else {
           throw exn;
@@ -28753,7 +28754,7 @@ function reducer(action, state) {
         return /* Update */Block.__(0, [/* record */[
                     /* board */newBoard,
                     /* startingBoard */state[/* startingBoard */1],
-                    /* status */state[/* status */2]
+                    /* status */Validate$ReactTemplate.getStatusForBoard(newBoard)
                   ]]);
       }
     }
@@ -28834,7 +28835,7 @@ var cloneElement = ReactElement.cloneElement;
 
 if (process.env.NODE_ENV !== 'production') {
   var lowPriorityWarning = __webpack_require__(30);
-  var canDefineProperty = __webpack_require__(24);
+  var canDefineProperty = __webpack_require__(25);
   var ReactElementValidator = __webpack_require__(46);
   var didWarnPropTypesDeprecated = false;
   createElement = ReactElementValidator.createElement;
@@ -28955,7 +28956,7 @@ module.exports = React;
 var PooledClass = __webpack_require__(67);
 var ReactElement = __webpack_require__(13);
 
-var emptyFunction = __webpack_require__(7);
+var emptyFunction = __webpack_require__(8);
 var traverseAllChildren = __webpack_require__(68);
 
 var twoArgumentPooler = PooledClass.twoArgumentPooler;
@@ -29264,7 +29265,7 @@ module.exports = PooledClass;
 
 var _prodInvariant = __webpack_require__(16);
 
-var ReactCurrentOwner = __webpack_require__(25);
+var ReactCurrentOwner = __webpack_require__(26);
 var REACT_ELEMENT_TYPE = __webpack_require__(44);
 
 var getIteratorFn = __webpack_require__(45);
@@ -29864,13 +29865,13 @@ module.exports = function(isValidElement) {
 
 
 
-var emptyFunction = __webpack_require__(7);
+var emptyFunction = __webpack_require__(8);
 var invariant = __webpack_require__(3);
 var warning = __webpack_require__(4);
 var assign = __webpack_require__(5);
 
 var ReactPropTypesSecret = __webpack_require__(32);
-var checkPropTypes = __webpack_require__(27);
+var checkPropTypes = __webpack_require__(28);
 
 module.exports = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -31426,7 +31427,7 @@ module.exports = onlyChild;
 "use strict";
 
 
-var $$Array                 = __webpack_require__(8);
+var $$Array                 = __webpack_require__(7);
 var Curry                   = __webpack_require__(2);
 var Int32                   = __webpack_require__(82);
 var Int64                   = __webpack_require__(83);
@@ -32028,7 +32029,7 @@ exports.from_hex  = from_hex;
 "use strict";
 
 
-var List        = __webpack_require__(28);
+var List        = __webpack_require__(22);
 var Bytes       = __webpack_require__(86);
 var Caml_int32  = __webpack_require__(18);
 var Caml_string = __webpack_require__(12);
@@ -32238,7 +32239,7 @@ exports.compare        = compare;
 
 
 var Char                    = __webpack_require__(47);
-var List                    = __webpack_require__(28);
+var List                    = __webpack_require__(22);
 var Curry                   = __webpack_require__(2);
 var Caml_obj                = __webpack_require__(11);
 var Caml_int32              = __webpack_require__(18);
@@ -33160,7 +33161,7 @@ exports.is_empty   = is_empty;
 
 var Obj             = __webpack_require__(92);
 var Curry           = __webpack_require__(2);
-var Caml_exceptions = __webpack_require__(23);
+var Caml_exceptions = __webpack_require__(24);
 
 var Undefined = Caml_exceptions.create("CamlinternalLazy.Undefined");
 
@@ -33466,7 +33467,7 @@ exports.total_size   = total_size;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array           = __webpack_require__(8);
+var $$Array           = __webpack_require__(7);
 var React             = __webpack_require__(15);
 var Pervasives        = __webpack_require__(6);
 var ReasonReact       = __webpack_require__(10);
@@ -33505,7 +33506,7 @@ exports.make      = make;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array           = __webpack_require__(8);
+var $$Array           = __webpack_require__(7);
 var React             = __webpack_require__(15);
 var Hashtbl           = __webpack_require__(20);
 var Pervasives        = __webpack_require__(6);
@@ -33550,7 +33551,7 @@ exports.make      = make;
 var Curry       = __webpack_require__(2);
 var React       = __webpack_require__(15);
 var Pervasives  = __webpack_require__(6);
-var ReactDOMRe  = __webpack_require__(26);
+var ReactDOMRe  = __webpack_require__(27);
 var ReasonReact = __webpack_require__(10);
 
 var component = ReasonReact.statelessComponent("Box");
@@ -33691,6 +33692,56 @@ exports.make                  = make;
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
+var List       = __webpack_require__(22);
+var $$Array    = __webpack_require__(7);
+var Caml_array = __webpack_require__(9);
+
+function getStatusForBoard(board) {
+  var status = "valid";
+  var i = 0;
+  while(status === "valid" && i < 9) {
+    var row = Caml_array.caml_array_get(board, i);
+    var j = 0;
+    while(status === "valid" && j < 9) {
+      var column = Caml_array.caml_array_get(row, j);
+      if (!column) {
+        status = "incomplete";
+      }
+      j = j + 1 | 0;
+    };
+    i = i + 1 | 0;
+  };
+  i = 0;
+  while(status === "valid" && i < 9) {
+    var row$1 = Caml_array.caml_array_get(board, i);
+    var currentRowValues = Caml_array.caml_make_vect(board.length, 0);
+    for(var j$1 = 0; j$1 <= 8; ++j$1){
+      Caml_array.caml_array_set(currentRowValues, Caml_array.caml_array_get(row$1, j$1) - 1 | 0, 1);
+    }
+    var list = $$Array.to_list(currentRowValues);
+    var missingValues = List.filter((function (i) {
+              return +(i === 0);
+            }))(list);
+    if (List.length(missingValues) > 0) {
+      status = "invalid";
+    }
+    i = i + 1 | 0;
+  };
+  return status;
+}
+
+exports.getStatusForBoard = getStatusForBoard;
+/* No side effect */
+
+
+/***/ }),
+/* 98 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
+
+
 var React       = __webpack_require__(15);
 var ReasonReact = __webpack_require__(10);
 
@@ -33738,17 +33789,17 @@ exports.make      = make;
 
 
 /***/ }),
-/* 98 */
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 // Generated by BUCKLESCRIPT VERSION 2.1.0, PLEASE EDIT WITH CARE
 
 
-var $$Array                      = __webpack_require__(8);
+var $$Array                      = __webpack_require__(7);
 var Curry                        = __webpack_require__(2);
 var React                        = __webpack_require__(15);
-var ReactDOMRe                   = __webpack_require__(26);
+var ReactDOMRe                   = __webpack_require__(27);
 var ReasonReact                  = __webpack_require__(10);
 var StartingBoards$ReactTemplate = __webpack_require__(48);
 
@@ -33814,7 +33865,7 @@ exports.make         = make;
 
 
 /***/ }),
-/* 99 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33904,7 +33955,7 @@ exports.one = one;
 
 
 /***/ }),
-/* 100 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
