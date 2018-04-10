@@ -32,5 +32,21 @@ let getStatusForBoard = (board: StartingBoards.board) : string => {
     };
     i := i^ + 1;
   };
+  /* Third, validate that every column has the correct value, 1 through 9 */
+  i := 0;
+  while (status^ === "valid" && i^ < 9) {
+    /* Keep track of every value that occurs in this column */
+    let currentRowValues = Array.make(Array.length(board), 0);
+    for (j in 0 to 8) {
+      currentRowValues[board[j][i^] - 1] = 1;
+    };
+    /* Validate that this column has every value 1 through 9 */
+    let list = Array.to_list(currentRowValues);
+    let missingValues = List.filter(i => i == 0, list);
+    if (List.length(missingValues) > 0) {
+      status := "invalid";
+    };
+    i := i^ + 1;
+  };
   status^;
 };

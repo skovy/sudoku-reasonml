@@ -33727,6 +33727,21 @@ function getStatusForBoard(board) {
     }
     i = i + 1 | 0;
   };
+  i = 0;
+  while(status === "valid" && i < 9) {
+    var currentRowValues$1 = Caml_array.caml_make_vect(board.length, 0);
+    for(var j$2 = 0; j$2 <= 8; ++j$2){
+      Caml_array.caml_array_set(currentRowValues$1, Caml_array.caml_array_get(Caml_array.caml_array_get(board, j$2), i) - 1 | 0, 1);
+    }
+    var list$1 = $$Array.to_list(currentRowValues$1);
+    var missingValues$1 = List.filter((function (i) {
+              return +(i === 0);
+            }))(list$1);
+    if (List.length(missingValues$1) > 0) {
+      status = "invalid";
+    }
+    i = i + 1 | 0;
+  };
   return status;
 }
 
