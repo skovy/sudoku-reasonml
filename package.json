@@ -6,7 +6,7 @@
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
     "coverage": "nyc report --temp-directory=coverage --reporter=text-lcov | coveralls",
-    "test": "yarn run build && jest --coverage",
+    "test": "yarn build && yarn jest --coverage",
     "webpack": "webpack -w"
   },
   "keywords": [
