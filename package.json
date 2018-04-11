@@ -5,7 +5,8 @@
     "build": "bsb -make-world",
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
-    "test": "yarn run build && jest",
+    "coverage": "nyc report --temp-directory=coverage --reporter=text-lcov | coveralls",
+    "test": "yarn run build && jest --coverage",
     "webpack": "webpack -w"
   },
   "keywords": [
@@ -25,6 +26,8 @@
     "@glennsl/bs-jest": "^0.4.2",
     "bs-platform": "2.2.3",
     "copy-webpack-plugin": "^4.5.1",
+    "coveralls": "^3.0.0",
+    "nyc": "^11.6.0",
     "webpack": "^3.8.1"
   }
 }
