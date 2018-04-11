@@ -1,15 +1,20 @@
 open Jest;
 
-describe("Expect", () =>
-  Expect.(test("toBe", () =>
-            expect(1 + 2) |> toBe(3)
-          ))
-);
+/* An "empty" board of all zeros, considered "incomplete" */
+let emptyBoard: StartingBoards.board = Array.make(9, Array.make(9, 0));
 
-describe("Expect.Operators", () => {
-  open Expect;
-  open! Expect.Operators;
-  test("==", () =>
-    expect(1 + 2) === 3
-  );
-});
+/* An "filled" board of all ones, considered "invalid" */
+let filledBoard: StartingBoards.board = Array.make(9, Array.make(9, 1));
+
+describe("Validate", () =>
+  describe("getStatusForBoard", () => {
+    open Expect;
+    open! Expect.Operators;
+    test("incomplete for an entirely empty board", () =>
+      expect(Validate.getStatusForBoard(emptyBoard)) === "incomplete"
+    );
+    test("not incomplete for an entirely filled board", () =>
+      expect(Validate.getStatusForBoard(filledBoard)) === "invalid"
+    );
+  })
+);
