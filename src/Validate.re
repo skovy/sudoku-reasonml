@@ -48,5 +48,27 @@ let getStatusForBoard = (board: StartingBoards.board) : string => {
     };
     i := i^ + 1;
   };
+  /* Fourth, validate that every 3x3 grid has 1 through 9 */
+  i := 0;
+  while (status^ === "valid" && i^ < 9) {
+    let j = ref(0);
+    while (j^ < 9) {
+      /* Keep track of every value that occurs in this box */
+      let currentRowValues = Array.make(Array.length(board), 0);
+      for (k in 0 to 2) {
+        for (l in 0 to 2) {
+          currentRowValues[board[i^ + l][j^ + k] - 1] = 1;
+        };
+      };
+      /* Validate that this column has every value 1 through 9 */
+      let list = Array.to_list(currentRowValues);
+      let missingValues = List.filter(i => i == 0, list);
+      if (List.length(missingValues) > 0) {
+        status := "invalid";
+      };
+      j := j^ + 3;
+    };
+    i := i^ + 3;
+  };
   status^;
 };
