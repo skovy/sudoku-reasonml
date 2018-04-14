@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/Skovy/sudoku-reasonml.svg?branch=master)](https://travis-ci.org/Skovy/sudoku-reasonml)
 [![Coverage Status](https://coveralls.io/repos/github/Skovy/sudoku-reasonml/badge.svg?branch=master)](https://coveralls.io/github/Skovy/sudoku-reasonml?branch=master)
 
-A simple Sudoku board and validation implemented with [ReasonML React](https://reasonml.github.io/reason-react/).
+A simple Sudoku board and validation implemented with [ReasonML React](https://reasonml.github.io/reason-react/). [View the demo](https://skovy.github.io/sudoku-reasonml/)
 
 ![Sudoku Board](/docs/sudoku.png)
 
